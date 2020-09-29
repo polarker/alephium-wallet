@@ -34,8 +34,9 @@ class App extends React.Component {
     super();
     this.state = {
       wallet: undefined,
+      networkType: "M"
     };
-    this.setWallet = this.setWallet.bind(this); 
+    this.setWallet = this.setWallet.bind(this);
   }
 
   setWallet(wallet) {
@@ -66,10 +67,10 @@ class App extends React.Component {
                   <Init setWallet={this.setWallet}/>
                 </Route>
                 <Route path="/import">
-                  <InitImport setWallet={this.setWallet}/>
+                  <InitImport networkType={this.state.networkType} setWallet={this.setWallet}/>
                 </Route>
                 <Route path="/create">
-                  <InitCreate setWallet={this.setWallet}/>
+                  <InitCreate networkType={this.state.networkType} setWallet={this.setWallet}/>
                 </Route>
                 <Redirect to="/" />
               </main>
