@@ -37,6 +37,6 @@ jobs:
           node-version: '14.x'
       - name: Build the desktop wallet
         run: |
-          npm ci
+          npm install
           npm run-script electron-pack-${{ steps.get-os.outputs.os }}
         shell: bash
