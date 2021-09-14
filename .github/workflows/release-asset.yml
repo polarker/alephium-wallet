@@ -1,74 +1,74 @@
-name: Release Assets
+# name: Release Assets
 
-on:
-  workflow_dispatch:
-  workflow_run:
-    workflows: ["Release"]
-    types:
-      - completed
+# on:
+#   workflow_dispatch:
+#   workflow_run:
+#     workflows: ["Release"]
+#     types:
+#       - completed
 
-jobs:
-  release-asset:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          submodules: true
-      - name: Get the version
-        id: get-version
-        run: |
-          version=$(echo ${GITHUB_REF/refs\/tags\//} | cut -c 2-)
-          echo ::set-output name=VERSION::$version
-        shell: bash
-      - id: get-os
-        run: |
-          os=$(echo ${{ matrix.os }} | cut -d- -f1)
-          echo "::set-output name=os::$os"
-        shell: bash
-      - run: echo "${{ steps.get-os.outputs.os }}"
-        shell: bash
-      - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '14.x'
-      - name: Build the desktop wallet
-        run: |
-          npm install
-          npm run-script electron-pack-${{ steps.get-os.outputs.os }}
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload release assets (macos)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/Alephium-${{ steps.get_version.outputs.VERSION }}.dmg
-          asset_name: alephium-wallet-macos-${{ steps.get_version.outputs.VERSION }}.dmg
-          asset_content_type: application/java-archive
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: matrix.os == "macos-latest"
-      - name: Upload release assets (linux)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/alephium-wallet_${{ steps.get_version.outputs.VERSION }}_amd64.deb
-          asset_name: alephium-wallet-linux-amd64-${{ steps.get_version.outputs.VERSION }}.deb
-          asset_content_type: application/java-archive
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: matrix.os == "linux-latest"
-      - name: Upload release assets (macos)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist\Alephium Setup ${{ steps.get_version.outputs.VERSION }}.exe
-          asset_name: alephium-wallet-windows-${{ steps.get_version.outputs.VERSION }}.exe
-          asset_content_type: application/java-archive
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: matrix.os == "windows-latest"
+# jobs:
+#   release-asset:
+#     runs-on: ${{ matrix.os }}
+#     strategy:
+#       matrix:
+#         os: [macos-latest, windows-latest, ubuntu-latest]
+#     steps:
+#       - uses: actions/checkout@v2
+#         with:
+#           fetch-depth: 0
+#           submodules: true
+#       - name: Get the version
+#         id: get-version
+#         run: |
+#           version=$(echo ${GITHUB_REF/refs\/tags\//} | cut -c 2-)
+#           echo ::set-output name=VERSION::$version
+#         shell: bash
+#       - id: get-os
+#         run: |
+#           os=$(echo ${{ matrix.os }} | cut -d- -f1)
+#           echo "::set-output name=os::$os"
+#         shell: bash
+#       - run: echo "${{ steps.get-os.outputs.os }}"
+#         shell: bash
+#       - name: Use Node.js
+#         uses: actions/setup-node@v1
+#         with:
+#           node-version: '14.x'
+#       - name: Build the desktop wallet
+#         run: |
+#           npm install
+#           npm run-script electron-pack-${{ steps.get-os.outputs.os }}
+#         shell: bash
+#         env:
+#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Upload release assets (macos)
+#         uses: actions/upload-release-asset@v1
+#         with:
+#           upload_url: ${{ steps.create_release.outputs.upload_url }}
+#           asset_path: dist/Alephium-${{ steps.get_version.outputs.VERSION }}.dmg
+#           asset_name: alephium-wallet-macos-${{ steps.get_version.outputs.VERSION }}.dmg
+#           asset_content_type: application/java-archive
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         if: matrix.os == "macos-latest"
+#       - name: Upload release assets (linux)
+#         uses: actions/upload-release-asset@v1
+#         with:
+#           upload_url: ${{ steps.create_release.outputs.upload_url }}
+#           asset_path: dist/alephium-wallet_${{ steps.get_version.outputs.VERSION }}_amd64.deb
+#           asset_name: alephium-wallet-linux-amd64-${{ steps.get_version.outputs.VERSION }}.deb
+#           asset_content_type: application/java-archive
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         if: matrix.os == "linux-latest"
+#       - name: Upload release assets (macos)
+#         uses: actions/upload-release-asset@v1
+#         with:
+#           upload_url: ${{ steps.create_release.outputs.upload_url }}
+#           asset_path: dist\Alephium Setup ${{ steps.get_version.outputs.VERSION }}.exe
+#           asset_name: alephium-wallet-windows-${{ steps.get_version.outputs.VERSION }}.exe
+#           asset_content_type: application/java-archive
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         if: matrix.os == "windows-latest"
