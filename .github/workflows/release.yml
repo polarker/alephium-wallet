@@ -31,7 +31,7 @@ jobs:
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git commit -am "Bump to ${{ steps.get-version.outputs.VERSION }}"
-          git push origin HEAD:master
+          git push origin HEAD:add-ci
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
