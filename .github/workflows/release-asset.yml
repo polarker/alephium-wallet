@@ -1,0 +1,39 @@
+name: Release Assets
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
+
+jobs:
+  release-asset:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Get the version
+        id: get-version
+        run: |
+          version=$(echo ${GITHUB_REF/refs\/tags\//} | cut -c 2-)
+          echo ::set-output name=VERSION::$version
+        shell: bash
+      - os: get-os
+        run: |
+          os=$(echo ${{ matrix.os }} | cut -d- -f1)
+          echo "::set-output name=os::$os"
+      - run: echo "${{ steps.get-os.outputs.os }}"
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+      - name: Build the desktop wallet
+        run: |
+          npm ci
+          npm run-script extension-pack-${{ steps.get-os.outputs.os }}
