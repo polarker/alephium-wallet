@@ -1,8 +1,12 @@
 name: Release
 
+# on:
+#   push:
+#     tags: [ "v[0-9]+.[0-9]+.[0-9]+*" ]
 on:
   push:
-    tags: [ "v[0-9]+.[0-9]+.[0-9]+*" ]
+    branches: [ master ]
+  pull_request:
 
 jobs:
   release:
@@ -25,28 +29,28 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '16.x'
-      - name: Update version
-        run: |
-          git config --global user.name 'polarker'
-          git config --global user.email 'polarker@users.noreply.github.com'
-          npm --no-git-tag-version version ${{ steps.get-version.outputs.VERSION }}
-      - name: Commit version
-        run: |
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git commit -am "Bump to ${{ steps.get-version.outputs.VERSION }}"
-          git push origin HEAD:master
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.get-version.outputs.VERSION }}
-          release_name: v${{ steps.get-version.outputs.VERSION }}
-          body: Some solid code
-          draft: false
-          prerelease: false
-      - run: echo ${{ steps.create_release.outputs.upload_url }}
+      # - name: Update version
+      #   run: |
+      #     git config --global user.name 'polarker'
+      #     git config --global user.email 'polarker@users.noreply.github.com'
+      #     npm --no-git-tag-version version ${{ steps.get-version.outputs.VERSION }}
+      # - name: Commit version
+      #   run: |
+      #     git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+      #     git commit -am "Bump to ${{ steps.get-version.outputs.VERSION }}"
+      #     git push origin HEAD:master
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: v${{ steps.get-version.outputs.VERSION }}
+      #     release_name: v${{ steps.get-version.outputs.VERSION }}
+      #     body: Some solid code
+      #     draft: false
+      #     prerelease: false
+      # - run: echo ${{ steps.create_release.outputs.upload_url }}
 
   build-and-upload:
     runs-on: ${{ matrix.os }}
@@ -72,48 +76,48 @@ jobs:
           node-version: '14.x'
       - name: Build the desktop wallet
         run: |
-          npm install
+          npm ci
           npm run-script electron-pack-${{ steps.get-os.outputs.os }}
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload release assets (macos)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ needs.release.outputs.upload-url }}
-          asset_path: dist/Alephium-${{ needs.release.outputs.version }}.dmg
-          asset_name: alephium-wallet-macos-${{ needs.release.outputs.version }}.dmg
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: startsWith(matrix.os, 'macos')
-      - name: Upload release assets (linux .deb)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ needs.release.outputs.upload-url }}
-          asset_path: dist/alephium-wallet_${{ needs.release.outputs.version }}_amd64.deb
-          asset_name: alephium-wallet-linux-amd64-${{ needs.release.outputs.version }}.deb
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: startsWith(matrix.os, 'ubuntu')
-      - name: Upload release assets (linux AppImage)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ needs.release.outputs.upload-url }}
-          asset_path: dist/Alephium-${{ needs.release.outputs.version }}.AppImage
-          asset_name: alephium-wallet-linux-${{ needs.release.outputs.version }}.AppImage
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: startsWith(matrix.os, 'ubuntu')
-      - name: Upload release assets (macos)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ needs.release.outputs.upload-url }}
-          asset_path: dist\Alephium Setup ${{ needs.release.outputs.version }}.exe
-          asset_name: alephium-wallet-windows-${{ needs.release.outputs.version }}.exe
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: startsWith(matrix.os, 'windows')
+      # - name: Upload release assets (macos)
+      #   uses: actions/upload-release-asset@v1
+      #   with:
+      #     upload_url: ${{ needs.release.outputs.upload-url }}
+      #     asset_path: dist/Alephium-${{ needs.release.outputs.version }}.dmg
+      #     asset_name: alephium-wallet-macos-${{ needs.release.outputs.version }}.dmg
+      #     asset_content_type: application/octet-stream
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   if: startsWith(matrix.os, 'macos')
+      # - name: Upload release assets (linux .deb)
+      #   uses: actions/upload-release-asset@v1
+      #   with:
+      #     upload_url: ${{ needs.release.outputs.upload-url }}
+      #     asset_path: dist/alephium-wallet_${{ needs.release.outputs.version }}_amd64.deb
+      #     asset_name: alephium-wallet-linux-amd64-${{ needs.release.outputs.version }}.deb
+      #     asset_content_type: application/octet-stream
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   if: startsWith(matrix.os, 'ubuntu')
+      # - name: Upload release assets (linux AppImage)
+      #   uses: actions/upload-release-asset@v1
+      #   with:
+      #     upload_url: ${{ needs.release.outputs.upload-url }}
+      #     asset_path: dist/Alephium-${{ needs.release.outputs.version }}.AppImage
+      #     asset_name: alephium-wallet-linux-${{ needs.release.outputs.version }}.AppImage
+      #     asset_content_type: application/octet-stream
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   if: startsWith(matrix.os, 'ubuntu')
+      # - name: Upload release assets (macos)
+      #   uses: actions/upload-release-asset@v1
+      #   with:
+      #     upload_url: ${{ needs.release.outputs.upload-url }}
+      #     asset_path: dist\Alephium Setup ${{ needs.release.outputs.version }}.exe
+      #     asset_name: alephium-wallet-windows-${{ needs.release.outputs.version }}.exe
+      #     asset_content_type: application/octet-stream
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   if: startsWith(matrix.os, 'windows')
