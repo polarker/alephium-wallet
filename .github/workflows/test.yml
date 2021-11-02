@@ -2,11 +2,11 @@ name: Test
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
 
 jobs:
-  build:
+  unit-tests:
     runs-on: ubuntu-latest
 
     strategy:
@@ -20,4 +20,32 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
+      - run: npm run lint
+      - run: npm audit --production
       - run: npm test
+
+  electron-tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - id: get-os
+        run: |
+          os=$(echo ${{ matrix.os }} | cut -d- -f1)
+          echo "::set-output name=os::$os"
+        shell: bash
+      - run: echo "${{ steps.get-os.outputs.os }}"
+        shell: bash
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+      - run: npm ci
+        shell: bash
+      - run: npm run-script electron-pack-${{ steps.get-os.outputs.os }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: npm run-script extension-pack
