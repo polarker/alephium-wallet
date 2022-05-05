@@ -53,7 +53,7 @@ const SendModalTransactionForm = ({ data, onSubmit, onCancel }: TransactionFormP
   const [contractCode, setContractCode] = useState(data?.contractCode ?? '')
   const [contractState, setContractState] = useState(data?.contractState ?? '')
   const [script, setScript] = useState(data?.script ?? '')
-  const [issueTokenAmount, setIssueTokenAmount] = useState(data?.issueTokenAmount ?? 0)
+  const [issueTokenAmount, setIssueTokenAmount] = useState(data?.issueTokenAmount ?? '0')
   const theme = useTheme()
 
   const handleAddressChange = (value: string) => {
