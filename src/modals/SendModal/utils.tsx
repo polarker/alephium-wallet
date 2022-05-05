@@ -102,20 +102,20 @@ export function useAddress(initialAddress: string) {
 export function useFromAddress(initialAddress: Address) {
   const [fromAddress, setFromAddress] = useState(initialAddress)
 
-  const fromAddressFC = (
+  const FromAddress = () => (
     <>
       <FromAddressSelect defaultAddress={fromAddress} setFromAddress={setFromAddress} />
     </>
   )
 
-  return [fromAddress, fromAddressFC] as const
+  return [fromAddress, FromAddress] as const
 }
 
 export function useBytecode(initialBytecode: string) {
   const [bytecode, setBytecode] = useState(initialBytecode)
-  const bytecodeFC = <Bytecode bytecode={bytecode} setBytecode={setBytecode} />
+  const Bytecode = () => <Bytecode bytecode={bytecode} setBytecode={setBytecode} />
 
-  return [bytecode, bytecodeFC] as const
+  return [bytecode, Bytecode] as const
 }
 
 export function useBuildTxCommon(
@@ -125,7 +125,7 @@ export function useBuildTxCommon(
   initialGasPrice: string | undefined
 ) {
   const theme = useTheme()
-  const [fromAddress, fromAddressFC] = useFromAddress(initialFromAddress)
+  const [fromAddress, FromAddress] = useFromAddress(initialFromAddress)
   const [alphAmount, setAlphAmount] = useState(initialAlphAmount ?? '')
   const [gasAmount, setGasAmount] = useStateWithError(initialGasAmount ?? '')
   const [gasPrice, setGasPrice] = useStateWithError(initialGasPrice ?? minimalGasPriceInALPH)
@@ -153,7 +153,7 @@ export function useBuildTxCommon(
 
   const isCommonReady = !gasAmount.error && !gasPrice.error
 
-  const alphAmountFC = (
+  const AlphAmount = () => (
     <TxAmount
       alphAmount={alphAmount}
       setAlphAmount={setAlphAmount}
@@ -162,23 +162,14 @@ export function useBuildTxCommon(
     />
   )
 
-  const gasSettingsFC = (
+  const GasSettings = () => (
     <ExpandableSectionStyled sectionTitleClosed="Gas">
       <GasAmount gasAmount={gasAmount} handleGasAmountChange={handleGasAmountChange} />
       <GasPrice theme={theme} gasPrice={gasPrice} handleGasPriceChange={handleGasPriceChange} />
     </ExpandableSectionStyled>
   )
 
-  return [
-    fromAddress,
-    fromAddressFC,
-    alphAmount,
-    alphAmountFC,
-    gasAmount,
-    gasPrice,
-    gasSettingsFC,
-    isCommonReady
-  ] as const
+  return [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] as const
 }
 
 export const FromAddressSelect = ({
@@ -346,7 +337,7 @@ export function useContractFields(initialFields: node.Val[]) {
     }
   }
 
-  const fieldsFC = (
+  const Fields = () => (
     <Input
       id="fields"
       placeholder="Contract fields"
@@ -355,7 +346,7 @@ export function useContractFields(initialFields: node.Val[]) {
     />
   )
 
-  return [fields, fieldsFC] as const
+  return [fields, Fields] as const
 }
 
 export const InitialFields = ({
@@ -377,7 +368,7 @@ export const InitialFields = ({
 
 export function useIssueTokenAmount(initialTokenAmount: string | undefined) {
   const [issueTokenAmount, setIssueTokenAmount] = useState(initialTokenAmount ?? '0')
-  const issueTokenAmountFC = (
+  const IssueTokenAmount = () => (
     <Input
       id="issue-token-amount"
       placeholder="Tokens to issue"
@@ -387,5 +378,21 @@ export function useIssueTokenAmount(initialTokenAmount: string | undefined) {
     />
   )
 
-  return [issueTokenAmount, issueTokenAmountFC] as const
+  return [issueTokenAmount, IssueTokenAmount] as const
 }
+
+export const fromAddressInfo = (fromAddress: Address) => (
+  <InfoBox text={fromAddress.hash} label="From address" wordBreak />
+)
+export const ToAddressInfo = (toAddress: string) => <InfoBox text={toAddress} label="To address" wordBreak />
+export const AlphAmountInfo = (expectedAmount: bigint) => (
+  <InfoBox label="Amount">
+    {formatAmountForDisplay(expectedAmount, false, 7)} <AlefSymbol />
+  </InfoBox>
+)
+export const FeeInfo = (fees: bigint) => (
+  <InfoBox label="Expected fee">
+    {formatAmountForDisplay(fees, true)} <AlefSymbol />
+  </InfoBox>
+)
+// const CheckFooter =

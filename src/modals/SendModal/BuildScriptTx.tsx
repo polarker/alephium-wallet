@@ -39,9 +39,9 @@ export interface BuildScriptTxProps {
 }
 
 const BuildScriptTxModal = ({ data, onSubmit, onCancel }: BuildScriptTxProps) => {
-  const [fromAddress, fromAddressFC, alphAmount, alphAmountFC, gasAmount, gasPrice, gasSettingsFC, isCommonReady] =
+  const [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] =
     useBuildTxCommon(data.fromAddress, data.alphAmount, data.gasAmount, data.gasPrice)
-  const [bytecode, bytecodeFC] = useBytecode(data.bytecode ?? '')
+  const [bytecode, Bytecode] = useBytecode(data.bytecode ?? '')
 
   const isSubmitButtonActive =
     isCommonReady &&
@@ -52,11 +52,11 @@ const BuildScriptTxModal = ({ data, onSubmit, onCancel }: BuildScriptTxProps) =>
   return (
     <>
       <ModalContent>
-        {fromAddressFC}
-        {alphAmountFC}
-        {bytecodeFC}
+        <FromAddress />
+        <AlphAmount />
+        <Bytecode />
       </ModalContent>
-      {gasSettingsFC}
+      <GasSettings />
       <SubmitOrCancel
         onSubmit={() =>
           onSubmit({

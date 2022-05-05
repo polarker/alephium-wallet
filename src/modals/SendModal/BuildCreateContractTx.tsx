@@ -48,11 +48,11 @@ export interface BuildCreateContractTxProps {
 }
 
 const BuildCreateContractModal = ({ data, onSubmit, onCancel }: BuildCreateContractTxProps) => {
-  const [fromAddress, fromAddressFC, alphAmount, alphAmountFC, gasAmount, gasPrice, gasSettingsFC, isCommonReady] =
+  const [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] =
     useBuildTxCommon(data.fromAddress, data.alphAmount, data.gasAmount, data.gasPrice)
-  const [bytecode, bytecodeFC] = useBytecode(data.bytecode ?? '')
-  const [fields, fieldsFC] = useContractFields(data.initialFields ?? [])
-  const [issueTokenAmount, issueTokenAmountFC] = useIssueTokenAmount(data.issueTokenAmount ?? '0')
+  const [bytecode, Bytecode] = useBytecode(data.bytecode ?? '')
+  const [fields, Fields] = useContractFields(data.initialFields ?? [])
+  const [issueTokenAmount, IssueTokenAmount] = useIssueTokenAmount(data.issueTokenAmount ?? '0')
 
   const isSubmitButtonActive =
     isCommonReady &&
@@ -63,13 +63,13 @@ const BuildCreateContractModal = ({ data, onSubmit, onCancel }: BuildCreateContr
   return (
     <>
       <ModalContent>
-        {fromAddressFC}
-        {alphAmountFC}
-        {bytecodeFC}
-        {fieldsFC}
-        {issueTokenAmountFC}
+        <FromAddress />
+        <AlphAmount />
+        <Bytecode />
+        <Fields />
+        <IssueTokenAmount />
       </ModalContent>
-      {gasSettingsFC}
+      <GasSettings />
       <SubmitOrCancel
         onSubmit={() =>
           onSubmit({
