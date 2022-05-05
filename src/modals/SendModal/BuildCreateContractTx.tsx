@@ -16,25 +16,24 @@ You should have received a copy of the GNU Lesser General Public License
 along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { convertAlphToSet, Val } from '@alephium/sdk'
-import { useState } from 'react'
+import { convertAlphToSet, node } from '@alephium/sdk'
 
 import { Address } from '../../contexts/addresses'
 import { isAmountWithinRange } from '../../utils/transactions'
 import {
-  // InitialFields,
   ModalContent,
   PartialTxData,
   SubmitOrCancel,
   useBuildTxCommon,
   useBytecode,
+  useContractFields,
   useIssueTokenAmount
 } from './utils'
 
 export interface BuildCreateContractTxData {
   fromAddress: Address
   bytecode: string
-  // initialFields: Val[]
+  initialFields: node.Val[]
 
   alphAmount?: string
   issueTokenAmount?: string
@@ -52,7 +51,7 @@ const BuildCreateContractModal = ({ data, onSubmit, onCancel }: BuildCreateContr
   const [fromAddress, fromAddressFC, alphAmount, alphAmountFC, gasAmount, gasPrice, gasSettingsFC, isCommonReady] =
     useBuildTxCommon(data.fromAddress, data.alphAmount, data.gasAmount, data.gasPrice)
   const [bytecode, bytecodeFC] = useBytecode(data.bytecode ?? '')
-  // const [initialFields, setInitialFields] = useState(data.initialFields ?? [])
+  const [fields, fieldsFC] = useContractFields(data.initialFields ?? [])
   const [issueTokenAmount, issueTokenAmountFC] = useIssueTokenAmount(data.issueTokenAmount ?? '0')
 
   const isSubmitButtonActive =
@@ -67,7 +66,7 @@ const BuildCreateContractModal = ({ data, onSubmit, onCancel }: BuildCreateContr
         {fromAddressFC}
         {alphAmountFC}
         {bytecodeFC}
-        {/* <InitialFields initialFields={initialFields} setInitialFields={setInitialFields} /> */}
+        {fieldsFC}
         {issueTokenAmountFC}
       </ModalContent>
       {gasSettingsFC}
@@ -76,7 +75,7 @@ const BuildCreateContractModal = ({ data, onSubmit, onCancel }: BuildCreateContr
           onSubmit({
             fromAddress: data.fromAddress,
             bytecode: bytecode,
-            // initialFields: initialFields,
+            initialFields: fields.fields,
             issueTokenAmount: issueTokenAmount,
             alphAmount: alphAmount,
             gasAmount: gasAmount.value,

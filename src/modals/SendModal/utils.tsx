@@ -16,7 +16,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { node, Val } from 'alephium-web3'
+import { node, Val, toApiVal } from 'alephium-web3'
 import { APIError, convertAlphToSet, getHumanReadableError, formatAmountForDisplay } from '@alephium/sdk'
 import { SweepAddressTransaction } from '@alephium/sdk/api/alephium'
 import { AnimatePresence } from 'framer-motion'
@@ -32,8 +32,6 @@ import InfoBox from '../../components/InfoBox'
 import Input from '../../components/Inputs/Input'
 import { Address, useAddressesContext } from '../../contexts/addresses'
 import { MINIMAL_GAS_AMOUNT, MINIMAL_GAS_PRICE } from '../../utils/constants'
-import { useGlobalContext } from '../../contexts/global'
-import { useWalletConnectContext } from '../../contexts/walletconnect'
 import { ReactComponent as PaperPlaneDarkSVG } from '../../images/paper-plane-dark.svg'
 import { ReactComponent as PaperPlaneLightSVG } from '../../images/paper-plane-light.svg'
 import { TX_SMALLEST_ALPH_AMOUNT_STR } from '../../utils/constants'
@@ -317,6 +315,47 @@ export const SubmitOrCancel = ({
 
 export const Bytecode = ({ bytecode, setBytecode }: { bytecode: string; setBytecode: (bytecode: string) => void }) => {
   return <Input id="code" placeholder="bytecode" value={bytecode} onChange={(e) => setBytecode(e.target.value)} />
+}
+
+const parseField = (field: string): node.Val => {
+  const [value, type] = field.split(':').map((t) => t.trim())
+  return toApiVal(value, type)
+}
+
+const parseFields = (fields: string): node.Val[] => {
+  return fields.split(',').map(parseField)
+}
+
+const encodeFields = (fields: node.Val[]): string => {
+  return fields.map((field) => `${field.value}:${field.type}`).join(',')
+}
+
+export function useContractFields(initialFields: node.Val[]) {
+  const [fields, setFields] = useState({
+    fields: initialFields,
+    fieldsString: encodeFields(initialFields),
+    error: ''
+  })
+
+  const handleFieldsChange = (newFields: string) => {
+    try {
+      setFields({ fields: parseFields(newFields), fieldsString: newFields, error: '' })
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? `: ${e.message}` : ''
+      setFields({ fields: [], fieldsString: newFields, error: `Invalid fields${errorMessage}` })
+    }
+  }
+
+  const fieldsFC = (
+    <Input
+      id="fields"
+      placeholder="Contract fields"
+      value={fields.fieldsString}
+      onChange={(e) => handleFieldsChange(e.target.value)}
+    />
+  )
+
+  return [fields, fieldsFC] as const
 }
 
 export const InitialFields = ({
