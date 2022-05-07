@@ -47,7 +47,7 @@ export interface BuildCreateContractTxProps {
   onCancel: () => void
 }
 
-const BuildCreateContractModal = ({ data, onSubmit, onCancel }: BuildCreateContractTxProps) => {
+const BuildCreateContractTx = ({ data, onSubmit, onCancel }: BuildCreateContractTxProps) => {
   const [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] =
     useBuildTxCommon(data.fromAddress, data.alphAmount, data.gasAmount, data.gasPrice)
   const [bytecode, Bytecode] = useBytecode(data.bytecode ?? '')
@@ -89,4 +89,4 @@ const BuildCreateContractModal = ({ data, onSubmit, onCancel }: BuildCreateContr
   )
 }
 
-export default BuildCreateContractModal
+export default BuildCreateContractTx

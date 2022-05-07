@@ -21,7 +21,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Layers, List, Lock, RefreshCw, Send } from 'lucide-react'
-import { FC, useState } from 'react'
+import React, { FC, useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import styled, { useTheme } from 'styled-components'
 
@@ -38,6 +38,7 @@ import LogoDarkSrc from '../../images/alephium_logo_dark.svg'
 import LogoLightSrc from '../../images/alephium_logo_light.svg'
 import CenteredModal from '../../modals/CenteredModal'
 import SendModal from '../../modals/SendModal'
+import { MemoizedTxModal } from '../../modals/SendModal/TxModal'
 import { appHeaderHeightPx, deviceBreakPoints, walletSidebarWidthPx } from '../../style/globalStyles'
 
 interface AccountNameSelectOptions {
@@ -50,10 +51,9 @@ dayjs.extend(relativeTime)
 const Storage = getStorage()
 
 const WalletLayout: FC = ({ children }) => {
-  const { wallet, lockWallet, currentAccountName, login, isOffline, isSendModalOpen, setIsSendModalOpen } =
-    useGlobalContext()
+  const { wallet, lockWallet, currentAccountName, login, isOffline, txModalType, setTxModalType } = useGlobalContext()
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
-  const { refreshAddressesData, isLoadingData } = useAddressesContext()
+  const { refreshAddressesData, isLoadingData, mainAddress } = useAddressesContext()
   const history = useHistory()
   const location = useLocation()
   const theme = useTheme()
@@ -131,12 +131,20 @@ const WalletLayout: FC = ({ children }) => {
           <ActionsTitle>MENU</ActionsTitle>
           <ActionButton Icon={Layers} label="Overview" link="/wallet/overview" />
           <ActionButton Icon={List} label="Addresses" link="/wallet/addresses" />
-          <ActionButton Icon={Send} label="Send" onClick={() => setIsSendModalOpen(true)} />
+          <ActionButton Icon={Send} label="Send" onClick={() => setTxModalType('transfer')} />
+          <ActionButton Icon={Send} label="Script" onClick={() => setTxModalType('script')} />
+          <ActionButton Icon={Send} label="Create Contract" onClick={() => setTxModalType('create-contract')} />
           <ActionButton Icon={Lock} label="Lock" onClick={lockWallet} />
         </WalletActions>
       </WalletSidebar>
       <AnimatePresence exitBeforeEnter initial={true}>
-        {isSendModalOpen && <SendModal onClose={() => setIsSendModalOpen(false)} />}
+        {txModalType && (
+          <MemoizedTxModal
+            initialAddress={mainAddress}
+            txModalType={txModalType}
+            onClose={() => setTxModalType(false)}
+          />
+        )}
         {isPasswordModalOpen && (
           <CenteredModal title="Enter password" onClose={() => setIsPasswordModalOpen(false)}>
             <PasswordConfirmation

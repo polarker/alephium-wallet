@@ -43,6 +43,8 @@ if (deprecatedSettingsExist()) {
   localStorageSettings = migrateDeprecatedSettings()
 }
 
+export type TxModalType = 'transfer' | 'create-contract' | 'script'
+
 export interface GlobalContextProps {
   currentAccountName: string
   setCurrentAccountName: (accountName: string) => void
@@ -59,11 +61,11 @@ export interface GlobalContextProps {
   currentNetwork: NetworkType | 'custom'
   isOffline: boolean
   newLatestVersion: string
-  isSendModalOpen: boolean
-  setIsSendModalOpen: (a: boolean) => void
+  txModalType: TxModalType | false
+  setTxModalType: (a: TxModalType | false) => void
 }
 
-export type Client = AsyncReturnType<typeof createClient>
+export type Client = Exclude<AsyncReturnType<typeof createClient>, false | undefined>
 
 export const initialGlobalContext: GlobalContextProps = {
   currentAccountName: '',
@@ -81,8 +83,8 @@ export const initialGlobalContext: GlobalContextProps = {
   currentNetwork: 'mainnet',
   isOffline: false,
   newLatestVersion: '',
-  isSendModalOpen: false,
-  setIsSendModalOpen: () => false
+  txModalType: false,
+  setTxModalType: () => false
 }
 
 export const GlobalContext = createContext<GlobalContextProps>(initialGlobalContext)
@@ -104,7 +106,7 @@ export const GlobalContextProvider: FC<{ overrideContextValue?: PartialDeep<Glob
   const [isOffline, setIsOffline] = useState(false)
   const currentNetwork = getNetworkName(settings.network)
   const newLatestVersion = useLatestGitHubRelease()
-  const [isSendModalOpen, setIsSendModalOpen] = useState(false)
+  const [txModalType, setTxModalType] = useState<TxModalType | false>(false)
 
   const updateSettings: UpdateSettingsFunctionSignature = (settingKeyToUpdate, newSettings) => {
     const updatedSettings = updateStoredSettings(settingKeyToUpdate, newSettings)
@@ -207,8 +209,8 @@ export const GlobalContextProvider: FC<{ overrideContextValue?: PartialDeep<Glob
           currentNetwork,
           isOffline,
           newLatestVersion,
-          isSendModalOpen,
-          setIsSendModalOpen
+          txModalType,
+          setTxModalType
         },
         overrideContextValue as GlobalContextProps
       )}

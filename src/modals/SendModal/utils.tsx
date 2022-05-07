@@ -43,6 +43,8 @@ import SendModalTransactionForm from './TransactionForm'
 import { ModalFooterButton, ModalFooterButtons } from '../CenteredModal'
 import { checkAddressValidity } from '../../utils/addresses'
 
+export type Step = 'send' | 'info-check' | 'password-check'
+
 export type PartialTxData<T, K extends keyof T> = {
   [P in keyof Omit<T, K>]?: T[P]
 } & Pick<T, K>
@@ -113,7 +115,9 @@ export function useFromAddress(initialAddress: Address) {
 
 export function useBytecode(initialBytecode: string) {
   const [bytecode, setBytecode] = useState(initialBytecode)
-  const Bytecode = () => <Bytecode bytecode={bytecode} setBytecode={setBytecode} />
+  const Bytecode = () => (
+    <Input id="code" placeholder="bytecode" value={bytecode} onChange={(e) => setBytecode(e.target.value)} />
+  )
 
   return [bytecode, Bytecode] as const
 }
@@ -129,6 +133,8 @@ export function useBuildTxCommon(
   const [alphAmount, setAlphAmount] = useState(initialAlphAmount ?? '')
   const [gasAmount, setGasAmount] = useStateWithError(initialGasAmount ?? '')
   const [gasPrice, setGasPrice] = useStateWithError(initialGasPrice ?? minimalGasPriceInALPH)
+
+  console.log('======== useBuildTx')
 
   const handleGasAmountChange = (newGasAmount: string) => {
     const error = checkAmount(newGasAmount, BigInt(MINIMAL_GAS_AMOUNT), false)
@@ -304,10 +310,6 @@ export const SubmitOrCancel = ({
   )
 }
 
-export const Bytecode = ({ bytecode, setBytecode }: { bytecode: string; setBytecode: (bytecode: string) => void }) => {
-  return <Input id="code" placeholder="bytecode" value={bytecode} onChange={(e) => setBytecode(e.target.value)} />
-}
-
 const parseField = (field: string): node.Val => {
   const [value, type] = field.split(':').map((t) => t.trim())
   return toApiVal(value, type)
@@ -381,18 +383,56 @@ export function useIssueTokenAmount(initialTokenAmount: string | undefined) {
   return [issueTokenAmount, IssueTokenAmount] as const
 }
 
-export const fromAddressInfo = (fromAddress: Address) => (
+export const expectedAmount = (data: { fromAddress: Address; alphAmount?: string }, fees: bigint) => {
+  const amountInSet = data.alphAmount ? convertAlphToSet(data.alphAmount) : 0n
+  const amountIncludingFees = amountInSet + fees
+  const exceededBy = amountIncludingFees - data.fromAddress.availableBalance
+  const expectedAmount = exceededBy > 0 ? data.fromAddress.availableBalance - exceededBy : amountInSet
+  return expectedAmount
+}
+
+export type CheckTxProps<T> = {
+  data: T
+  fees: bigint
+  onSend: () => void
+  onCancel: () => void
+}
+
+export const FromAddressInfo = ({ fromAddress }: { fromAddress: Address }) => (
   <InfoBox text={fromAddress.hash} label="From address" wordBreak />
 )
-export const ToAddressInfo = (toAddress: string) => <InfoBox text={toAddress} label="To address" wordBreak />
-export const AlphAmountInfo = (expectedAmount: bigint) => (
+
+export const ToAddressInfo = ({ toAddress }: { toAddress: string }) => (
+  <InfoBox text={toAddress} label="To address" wordBreak />
+)
+
+export const AlphAmountInfo = ({ expectedAmount }: { expectedAmount: bigint }) => (
   <InfoBox label="Amount">
     {formatAmountForDisplay(expectedAmount, false, 7)} <AlefSymbol />
   </InfoBox>
 )
-export const FeeInfo = (fees: bigint) => (
+
+export const FeeInfo = ({ fees }: { fees: bigint }) => (
   <InfoBox label="Expected fee">
     {formatAmountForDisplay(fees, true)} <AlefSymbol />
   </InfoBox>
 )
-// const CheckFooter =
+
+export const BytecodeInfo = ({ bytecode }: { bytecode: string }) => (
+  <InfoBox text={bytecode} label="Bytecode" wordBreak />
+)
+
+export const FieldsInfo = ({ fields }: { fields: node.Val[] }) =>
+  fields.length > 0 ? <InfoBox text={encodeFields(fields)} label="Contract Fields" wordBreak /> : <></>
+
+export const IssueTokenAmountInfo = ({ issueTokenAmount }: { issueTokenAmount?: string }) =>
+  issueTokenAmount ? <InfoBox text={issueTokenAmount} label="Issue token amount" wordBreak /> : <></>
+
+export const CheckTxFooter = ({ onSend, onCancel }: { onSend: () => void; onCancel: () => void }) => (
+  <ModalFooterButtons>
+    <ModalFooterButton secondary onClick={onCancel}>
+      Cancel
+    </ModalFooterButton>
+    <ModalFooterButton onClick={onSend}>Send</ModalFooterButton>
+  </ModalFooterButtons>
+)

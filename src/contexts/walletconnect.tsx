@@ -45,7 +45,7 @@ export const initialContext: ContextType = {
 export const Context = createContext<ContextType>(initialContext)
 
 export const WalletConnectContextProvider: FC = ({ children }) => {
-  const { setIsSendModalOpen, settings } = useGlobalContext()
+  const { setTxModalType, settings } = useGlobalContext()
   const { addresses } = useAddressesContext()
   const [isWalletConnectModalOpen, setIsWalletConnectModalOpen] = useState(false)
   const [walletConnect, setWalletConnect] = useState<WalletConnectClient>()
@@ -120,7 +120,7 @@ export const WalletConnectContextProvider: FC = ({ children }) => {
             issueTokenAmount: params.issueTokenAmount
           }
           setDappTransactionData(txData)
-          setIsSendModalOpen(true)
+          setTxModalType(false)
         }
       } else {
         console.warn('Unknown request given')
@@ -131,7 +131,7 @@ export const WalletConnectContextProvider: FC = ({ children }) => {
     return () => {
       walletConnect.removeListener(CLIENT_EVENTS.session.request, onSessionRequest)
     }
-  }, [walletConnect, addresses, setIsSendModalOpen, settings])
+  }, [walletConnect, addresses, setTxModalType, settings])
 
   return (
     <Context.Provider

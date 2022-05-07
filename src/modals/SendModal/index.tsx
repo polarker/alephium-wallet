@@ -37,9 +37,9 @@ import ConsolidateUTXOsModal from '../ConsolidateUTXOsModal'
 import SendModalCheckTransaction from './CheckTransaction'
 import SendModalTransactionForm from './TransactionForm'
 
-type Step = 'send' | 'info-check' | 'password-check'
+export type Step = 'send' | 'info-check' | 'password-check'
 
-const stepToTitle: { [k in Step]: string } = {
+export const stepToTitle: { [k in Step]: string } = {
   send: 'Send',
   'info-check': 'Review',
   'password-check': 'Password Check'

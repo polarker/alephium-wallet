@@ -56,6 +56,8 @@ const SendModalTransactionForm = ({ data, onSubmit, onCancel }: TransactionFormP
   const [issueTokenAmount, setIssueTokenAmount] = useState(data?.issueTokenAmount ?? '0')
   const theme = useTheme()
 
+  console.log('========= refresh transaction form')
+
   const handleAddressChange = (value: string) => {
     setToAddress(value)
     const validValue = checkAddressValidity(value)

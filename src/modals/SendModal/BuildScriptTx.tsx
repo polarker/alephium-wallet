@@ -27,7 +27,6 @@ export interface BuildScriptTxData {
   bytecode: string
 
   alphAmount?: string
-  issueTokenAmount?: string
   gasAmount?: string
   gasPrice?: string
 }
@@ -38,7 +37,7 @@ export interface BuildScriptTxProps {
   onCancel: () => void
 }
 
-const BuildScriptTxModal = ({ data, onSubmit, onCancel }: BuildScriptTxProps) => {
+const BuildScriptTx = ({ data, onSubmit, onCancel }: BuildScriptTxProps) => {
   const [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] =
     useBuildTxCommon(data.fromAddress, data.alphAmount, data.gasAmount, data.gasPrice)
   const [bytecode, Bytecode] = useBytecode(data.bytecode ?? '')
@@ -74,4 +73,4 @@ const BuildScriptTxModal = ({ data, onSubmit, onCancel }: BuildScriptTxProps) =>
   )
 }
 
-export default BuildScriptTxModal
+export default BuildScriptTx

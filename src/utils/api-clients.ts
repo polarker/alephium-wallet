@@ -170,6 +170,6 @@ export async function createClient(settings: Settings['network']) {
     }
   } catch (error) {
     console.error(error)
-    return false
+    return undefined
   }
 }
