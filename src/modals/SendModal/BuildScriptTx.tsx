@@ -55,7 +55,7 @@ const BuildScriptTx = ({ data, onSubmit, onCancel }: BuildScriptTxProps) => {
         {AlphAmount}
         <Bytecode />
       </ModalContent>
-      <GasSettings />
+      {GasSettings}
       <SubmitOrCancel
         onSubmit={() =>
           onSubmit({

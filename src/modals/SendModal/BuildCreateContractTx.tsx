@@ -69,7 +69,7 @@ const BuildCreateContractTx = ({ data, onSubmit, onCancel }: BuildCreateContract
         <Fields />
         <IssueTokenAmount />
       </ModalContent>
-      <GasSettings />
+      {GasSettings}
       <SubmitOrCancel
         onSubmit={() =>
           onSubmit({

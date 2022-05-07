@@ -17,10 +17,19 @@ along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { convertAlphToSet } from '@alephium/sdk'
+import AddressSelect from '../../components/Inputs/AddressSelect'
 
 import { Address } from '../../contexts/addresses'
 import { isAmountWithinRange } from '../../utils/transactions'
-import { ModalContent, PartialTxData, SubmitOrCancel, ToAddress, useAddress, useBuildTxCommon } from './utils'
+import {
+  FromAddressSelect,
+  ModalContent,
+  PartialTxData,
+  SubmitOrCancel,
+  ToAddress,
+  useAddress,
+  useBuildTxCommon
+} from './utils'
 
 export interface BuildTransferTxData {
   fromAddress: Address
@@ -37,7 +46,7 @@ export interface BuildTransferTxProps {
 }
 
 const BuildTransferTx = ({ data, onSubmit, onCancel }: BuildTransferTxProps) => {
-  const [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] =
+  const [fromAddress, setFromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] =
     useBuildTxCommon(data.fromAddress, data.alphAmount, data.gasAmount, data.gasPrice)
   const [toAddress, handleAddressChange] = useAddress(data?.toAddress ?? '')
 
@@ -51,11 +60,11 @@ const BuildTransferTx = ({ data, onSubmit, onCancel }: BuildTransferTxProps) => 
   return (
     <>
       <ModalContent>
-        {FromAddress}
+        <FromAddressSelect defaultAddress={fromAddress} setFromAddress={setFromAddress} />
         <ToAddress toAddress={toAddress} handleAddressChange={handleAddressChange} />
         {AlphAmount}
       </ModalContent>
-      <GasSettings />
+      {GasSettings}
       <SubmitOrCancel
         onSubmit={() =>
           onSubmit({
