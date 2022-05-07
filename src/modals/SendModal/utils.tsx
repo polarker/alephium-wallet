@@ -66,7 +66,7 @@ export const checkAmount = (amount: string, minAmount: bigint, shouldConvertToSe
   try {
     const amountNumber = shouldConvertToSet ? convertAlphToSet(amount || '0') : BigInt(amount)
     if (amountNumber < minAmount) {
-      return `The amount must be greater than ${formatAmountForDisplay(minAmount)}`
+      return `The amount must be greater than ${minAmount}`
     }
   } catch (e) {
     return 'Unable to convert the amount'
@@ -103,7 +103,7 @@ export function useAddress(initialAddress: string) {
 
 export function useBytecode(initialBytecode: string) {
   const [bytecode, setBytecode] = useState(initialBytecode)
-  const Bytecode = () => (
+  const Bytecode = (
     <Input id="code" placeholder="bytecode" value={bytecode} onChange={(e) => setBytecode(e.target.value)} />
   )
 
@@ -327,7 +327,7 @@ export function useContractFields(initialFields: node.Val[]) {
     }
   }
 
-  const Fields = () => (
+  const Fields = (
     <Input
       id="fields"
       placeholder="Contract fields"
@@ -358,7 +358,7 @@ export const InitialFields = ({
 
 export function useIssueTokenAmount(initialTokenAmount: string | undefined) {
   const [issueTokenAmount, setIssueTokenAmount] = useState(initialTokenAmount ?? '0')
-  const IssueTokenAmount = () => (
+  const IssueTokenAmount = (
     <Input
       id="issue-token-amount"
       placeholder="Tokens to issue"

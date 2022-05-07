@@ -65,9 +65,9 @@ const BuildCreateContractTx = ({ data, onSubmit, onCancel }: BuildCreateContract
       <ModalContent>
         {FromAddress}
         {AlphAmount}
-        <Bytecode />
-        <Fields />
-        <IssueTokenAmount />
+        {Bytecode}
+        {Fields}
+        {IssueTokenAmount}
       </ModalContent>
       {GasSettings}
       <SubmitOrCancel
