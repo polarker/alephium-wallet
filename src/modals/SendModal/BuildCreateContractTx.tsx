@@ -63,8 +63,8 @@ const BuildCreateContractTx = ({ data, onSubmit, onCancel }: BuildCreateContract
   return (
     <>
       <ModalContent>
-        <FromAddress />
-        <AlphAmount />
+        {FromAddress}
+        {AlphAmount}
         <Bytecode />
         <Fields />
         <IssueTokenAmount />

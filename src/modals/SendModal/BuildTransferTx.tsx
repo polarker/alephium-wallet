@@ -51,9 +51,9 @@ const BuildTransferTx = ({ data, onSubmit, onCancel }: BuildTransferTxProps) => 
   return (
     <>
       <ModalContent>
-        <FromAddress />
+        {FromAddress}
         <ToAddress toAddress={toAddress} handleAddressChange={handleAddressChange} />
-        <AlphAmount />
+        {AlphAmount}
       </ModalContent>
       <GasSettings />
       <SubmitOrCancel

@@ -40,7 +40,7 @@ import SendModalCheckTransaction from './CheckTransaction'
 import CheckTransferTx from './CheckTransferTx'
 import SendModalTransactionForm from './TransactionForm'
 import BuildScriptTxModal from './BuildScriptTx'
-import { useTxModal } from './TxModal'
+import { TxContext, TxModalFactory } from './TxModal'
 
 export type TransferTxModalProps = {
   initialTxData: BuildTransferTxProps['data']
@@ -48,30 +48,17 @@ export type TransferTxModalProps = {
 }
 
 const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
-  const { currentNetwork } = useGlobalContext()
-  const [
-    TxModal,
-    consolidationRequired,
-    [isSweeping, setIsSweeping],
-    [sweepUnsignedTxs, setSweepUnsignedTxs],
-    setFees
-  ] = useTxModal<BuildTransferTxProps['data'], BuildTransferTxData>(initialTxData, onClose)
-
-  const { setAddress } = useAddressesContext()
-  const [unsignedTxId, setUnsignedTxId] = useState('')
-  const [unsignedTransaction, setUnsignedTransaction] = useState('')
-
   console.log('============ refresh transfer')
 
-  const buildTransaction = async (client: Client, transactionData: BuildTransferTxData) => {
+  const buildTransaction = async (client: Client, transactionData: BuildTransferTxData, context: TxContext) => {
     const { fromAddress, toAddress, alphAmount, gasAmount, gasPrice } = transactionData
     const amountInSet = convertAlphToSet(alphAmount)
     const sweep = amountInSet === fromAddress.availableBalance
-    setIsSweeping(sweep)
+    context.setIsSweeping(sweep)
     if (sweep) {
       const { unsignedTxs, fees } = await client.buildSweepTransactions(fromAddress, toAddress)
-      setSweepUnsignedTxs(unsignedTxs)
-      setFees(fees)
+      context.setSweepUnsignedTxs(unsignedTxs)
+      context.setFees(fees)
     } else {
       const { data } = await client.clique.transactionCreate(
         fromAddress.hash,
@@ -82,54 +69,56 @@ const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
         gasAmount ? parseInt(gasAmount) : undefined,
         gasPrice ? convertAlphToSet(gasPrice).toString() : undefined
       )
-      setUnsignedTransaction(data.unsignedTx)
-      setUnsignedTxId(data.txId)
-      setFees(BigInt(data.gasAmount) * BigInt(data.gasPrice))
+      context.setUnsignedTransaction(data.unsignedTx)
+      context.setUnsignedTxId(data.txId)
+      context.setFees(BigInt(data.gasAmount) * BigInt(data.gasPrice))
     }
   }
 
-  const handleSend = async (client: Client, transactionData: BuildTransferTxData) => {
+  const handleSend = async (client: Client, transactionData: BuildTransferTxData, context: TxContext) => {
     const { fromAddress, toAddress, alphAmount } = transactionData
 
     if (toAddress) {
-      if (isSweeping) {
-        const sendToAddress = consolidationRequired ? fromAddress.hash : toAddress
-        const transactionType = consolidationRequired ? 'consolidation' : 'sweep'
+      if (context.isSweeping) {
+        const sendToAddress = context.consolidationRequired ? fromAddress.hash : toAddress
+        const transactionType = context.consolidationRequired ? 'consolidation' : 'sweep'
 
-        for (const { txId, unsignedTx } of sweepUnsignedTxs) {
+        for (const { txId, unsignedTx } of context.sweepUnsignedTxs) {
           const data = await client.signAndSendTransaction(
             fromAddress,
             txId,
             unsignedTx,
             sendToAddress,
             transactionType,
-            currentNetwork
+            context.currentNetwork
           )
 
           if (data) {
-            setAddress(fromAddress)
+            context.setAddress(fromAddress)
           }
         }
       } else {
         const data = await client.signAndSendTransaction(
           fromAddress,
-          unsignedTxId,
-          unsignedTransaction,
+          context.unsignedTxId,
+          context.unsignedTransaction,
           toAddress,
           'transfer',
-          currentNetwork,
+          context.currentNetwork,
           convertAlphToSet(alphAmount)
         )
 
         if (data) {
-          setAddress(fromAddress)
+          context.setAddress(fromAddress)
         }
       }
     }
   }
 
   return (
-    <TxModal
+    <TxModalFactory
+      initialTxData={initialTxData}
+      onClose={onClose}
       BuildTx={BuildTransferTx}
       CheckTx={CheckTransferTx}
       buildTransaction={buildTransaction}

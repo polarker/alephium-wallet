@@ -40,7 +40,7 @@ import SendModalCheckTransaction from './CheckTransaction'
 import CheckTransferTx from './CheckTransferTx'
 import SendModalTransactionForm from './TransactionForm'
 import BuildScriptTxModal from './BuildScriptTx'
-import { useTxModal } from './TxModal'
+import { TxContext, TxModalFactory } from './TxModal'
 import BuildCreateContractTx, { BuildCreateContractTxData, BuildCreateContractTxProps } from './BuildCreateContractTx'
 import CheckCreateContractTx from './CheckCreateContractTx'
 
@@ -50,29 +50,18 @@ export type CreateContractTxModalProps = {
 }
 
 const CreateContractTxModal = ({ initialTxData, onClose }: CreateContractTxModalProps) => {
-  const { currentNetwork } = useGlobalContext()
-  const [
-    TxModal,
-    consolidationRequired,
-    [isSweeping, setIsSweeping],
-    [sweepUnsignedTxs, setSweepUnsignedTxs],
-    setFees
-  ] = useTxModal<BuildCreateContractTxProps['data'], BuildCreateContractTxData>(initialTxData, onClose)
-
-  const { setAddress } = useAddressesContext()
-  const [unsignedTxId, setUnsignedTxId] = useState('')
-  const [unsignedTransaction, setUnsignedTransaction] = useState('')
-
-  const buildTransaction = async (client: Client, transactionData: BuildCreateContractTxData) => {
+  const buildTransaction = async (client: Client, transactionData: BuildCreateContractTxData, context: TxContext) => {
     return
   }
 
-  const handleSend = async (client: Client, transactionData: BuildCreateContractTxData) => {
+  const handleSend = async (client: Client, transactionData: BuildCreateContractTxData, context: TxContext) => {
     return
   }
 
   return (
-    <TxModal
+    <TxModalFactory
+      initialTxData={initialTxData}
+      onClose={onClose}
       BuildTx={BuildCreateContractTx}
       CheckTx={CheckCreateContractTx}
       buildTransaction={buildTransaction}

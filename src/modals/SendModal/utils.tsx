@@ -104,7 +104,7 @@ export function useAddress(initialAddress: string) {
 export function useFromAddress(initialAddress: Address) {
   const [fromAddress, setFromAddress] = useState(initialAddress)
 
-  const FromAddress = () => (
+  const FromAddress = (
     <>
       <FromAddressSelect defaultAddress={fromAddress} setFromAddress={setFromAddress} />
     </>
@@ -159,7 +159,7 @@ export function useBuildTxCommon(
 
   const isCommonReady = !gasAmount.error && !gasPrice.error
 
-  const AlphAmount = () => (
+  const AlphAmount = (
     <TxAmount
       alphAmount={alphAmount}
       setAlphAmount={setAlphAmount}

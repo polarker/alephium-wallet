@@ -19,7 +19,7 @@ along with the library. If not, see <http://www.gnu.org/licenses/>.
 import { APIError, convertAlphToSet, formatAmountForDisplay, getHumanReadableError } from '@alephium/sdk'
 import { SweepAddressTransaction } from '@alephium/sdk/api/alephium'
 import { AnimatePresence } from 'framer-motion'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import styled, { useTheme } from 'styled-components'
 
 import ExpandableSection from '../../components/ExpandableSection'
@@ -43,9 +43,50 @@ import BuildScriptTxModal from './BuildScriptTx'
 import TransferTxModal from './TransferTxModal'
 import CreateContractTxModal from './CreateContractTxModal'
 import ScriptTxModal from './ScriptTxModal'
+import { NetworkType } from '../../utils/settings'
 
-export function useTxModal<PT extends { fromAddress: Address }, T extends PT>(initialData: PT, onClose: () => void) {
+type ReactSet<T> = Dispatch<SetStateAction<T>>
+
+export type TxContext = {
+  setIsSweeping: ReactSet<boolean>
+  sweepUnsignedTxs: SweepAddressTransaction[]
+  setSweepUnsignedTxs: ReactSet<SweepAddressTransaction[]>
+  setFees: ReactSet<bigint | undefined>
+  unsignedTransaction: string
+  setUnsignedTransaction: ReactSet<string>
+  unsignedTxId: string
+  setUnsignedTxId: ReactSet<string>
+  isSweeping: boolean
+  consolidationRequired: boolean
+  currentNetwork: NetworkType
+  setAddress: (address: Address) => void
+}
+
+export type TxModalProps = {
+  initialAddress: Address | undefined
+  txModalType: TxModalType
+  onClose: () => void
+}
+
+export type TxModalFactoryProps<PT extends { fromAddress: Address }, T extends PT> = {
+  initialTxData: PT
+  onClose: () => void
+  BuildTx: (props: { data: PT; onSubmit: (data: T) => void; onCancel: () => void }) => JSX.Element
+  CheckTx: (props: { data: T; fees: bigint; onSend: () => void; onCancel: () => void }) => JSX.Element
+  buildTransaction: (client: Client, data: T, context: TxContext) => void
+  handleSend: (client: Client, data: T, context: TxContext) => void
+}
+
+export function TxModalFactory<PT extends { fromAddress: Address }, T extends PT>({
+  initialTxData,
+  onClose,
+  BuildTx,
+  CheckTx,
+  buildTransaction,
+  handleSend
+}: TxModalFactoryProps<PT, T>) {
   const {
+    currentNetwork,
     client,
     wallet,
     settings: {
@@ -63,6 +104,25 @@ export function useTxModal<PT extends { fromAddress: Address }, T extends PT>(in
   const [sweepUnsignedTxs, setSweepUnsignedTxs] = useState<SweepAddressTransaction[]>([])
   const [fees, setFees] = useState<bigint>()
   const theme = useTheme()
+
+  const { setAddress } = useAddressesContext()
+  const [unsignedTxId, setUnsignedTxId] = useState('')
+  const [unsignedTransaction, setUnsignedTransaction] = useState('')
+
+  const getTxContext = (): TxContext => ({
+    setIsSweeping: setIsSweeping,
+    sweepUnsignedTxs: sweepUnsignedTxs,
+    setSweepUnsignedTxs: setSweepUnsignedTxs,
+    setFees: setFees,
+    unsignedTransaction: unsignedTransaction,
+    setUnsignedTransaction: setUnsignedTransaction,
+    unsignedTxId: unsignedTxId,
+    setUnsignedTxId: setUnsignedTxId,
+    isSweeping: isSweeping,
+    consolidationRequired: consolidationRequired,
+    currentNetwork: currentNetwork,
+    setAddress: setAddress
+  })
 
   useEffect(() => {
     setTitle(stepToTitle[step])
@@ -91,112 +151,85 @@ export function useTxModal<PT extends { fromAddress: Address }, T extends PT>(in
   }, [client, consolidationRequired, transactionData])
 
   const modalHeader = theme.name === 'dark' ? <PaperPlaneDarkSVG width="315px" /> : <PaperPlaneLightSVG width="315px" />
-
-  const TxModal = ({
-    BuildTx,
-    CheckTx,
-    buildTransaction,
-    handleSend
-  }: {
-    BuildTx: (props: { data: PT; onSubmit: (data: T) => void; onCancel: () => void }) => JSX.Element
-    CheckTx: (props: { data: T; fees: bigint; onSend: () => void; onCancel: () => void }) => JSX.Element
-    buildTransaction: (client: Client, data: T) => void
-    handleSend: (client: Client, data: T) => void
-  }) => {
-    const buildTransactionExtended = (data: T) => {
-      setTransactionData(data)
-      if (wallet && client) {
-        setIsLoading(true)
-        try {
-          buildTransaction(client, data)
-          if (!isConsolidateUTXOsModalVisible) {
-            setStep('info-check')
-          }
-        } catch (e) {
-          // TODO: When API error codes are available, replace this substring check with a proper error code check
-          const { error } = e as APIError
-          if (error?.detail && (error.detail.includes('consolidating') || error.detail.includes('consolidate'))) {
-            setIsConsolidateUTXOsModalVisible(true)
-            setConsolidationRequired(true)
-          } else {
-            setSnackbarMessage({
-              text: getHumanReadableError(e, 'Error while building the transaction'),
-              type: 'alert',
-              duration: 5000
-            })
-          }
+  const buildTransactionExtended = (data: T) => {
+    setTransactionData(data)
+    if (wallet && client) {
+      setIsLoading(true)
+      try {
+        buildTransaction(client, data, getTxContext())
+        if (!isConsolidateUTXOsModalVisible) {
+          setStep('info-check')
         }
-        setIsLoading(false)
-      }
-    }
-
-    const handleSendExtended = () => {
-      if (client && transactionData) {
-        setIsLoading(true)
-        try {
-          handleSend(client, transactionData)
+      } catch (e) {
+        // TODO: When API error codes are available, replace this substring check with a proper error code check
+        const { error } = e as APIError
+        if (error?.detail && (error.detail.includes('consolidating') || error.detail.includes('consolidate'))) {
+          setIsConsolidateUTXOsModalVisible(true)
+          setConsolidationRequired(true)
+        } else {
           setSnackbarMessage({
-            text: isSweeping && sweepUnsignedTxs.length > 1 ? 'Transactions sent!' : 'Transaction sent!',
-            type: 'success'
-          })
-          onClose()
-        } catch (e) {
-          console.error(e)
-          setSnackbarMessage({
-            text: getHumanReadableError(e, 'Error while sending the transaction'),
+            text: getHumanReadableError(e, 'Error while building the transaction'),
             type: 'alert',
             duration: 5000
           })
         }
-        setIsLoading(false)
       }
+      setIsLoading(false)
     }
-    return (
-      <CenteredModal title={title} onClose={onClose} isLoading={isLoading} header={modalHeader}>
-        {step === 'send' && (
-          <BuildTx data={transactionData ?? initialData} onSubmit={buildTransactionExtended} onCancel={onClose} />
-        )}
-        {step === 'info-check' && transactionData && fees && (
-          <CheckTx
-            data={transactionData}
-            fees={fees}
-            onSend={passwordRequirement ? confirmPassword : handleSendExtended}
-            onCancel={() => setStep('send')}
-          />
-        )}
-        {step === 'password-check' && passwordRequirement && (
-          <PasswordConfirmation
-            text="Enter your password to send the transaction."
-            buttonText="Send"
-            onCorrectPasswordEntered={handleSendExtended}
-          />
-        )}
-        <AnimatePresence>
-          {isConsolidateUTXOsModalVisible && (
-            <ConsolidateUTXOsModal
-              onClose={() => setIsConsolidateUTXOsModalVisible(false)}
-              onConsolidateClick={passwordRequirement ? confirmPassword : handleSendExtended}
-              fee={fees}
-            />
-          )}
-        </AnimatePresence>
-      </CenteredModal>
-    )
   }
 
-  return [
-    TxModal,
-    consolidationRequired,
-    [isSweeping, setIsSweeping],
-    [sweepUnsignedTxs, setSweepUnsignedTxs],
-    setFees
-  ] as const
-}
-
-export type TxModalProps = {
-  initialAddress: Address | undefined
-  txModalType: TxModalType
-  onClose: () => void
+  const handleSendExtended = () => {
+    if (client && transactionData) {
+      setIsLoading(true)
+      try {
+        handleSend(client, transactionData, getTxContext())
+        setSnackbarMessage({
+          text: isSweeping && sweepUnsignedTxs.length > 1 ? 'Transactions sent!' : 'Transaction sent!',
+          type: 'success'
+        })
+        onClose()
+      } catch (e) {
+        console.error(e)
+        setSnackbarMessage({
+          text: getHumanReadableError(e, 'Error while sending the transaction'),
+          type: 'alert',
+          duration: 5000
+        })
+      }
+      setIsLoading(false)
+    }
+  }
+  return (
+    <CenteredModal title={title} onClose={onClose} isLoading={isLoading} header={modalHeader}>
+      {step === 'send' && (
+        <BuildTx data={transactionData ?? initialTxData} onSubmit={buildTransactionExtended} onCancel={onClose} />
+      )}
+      {step === 'info-check' && transactionData && fees && (
+        <CheckTx
+          data={transactionData}
+          fees={fees}
+          onSend={passwordRequirement ? confirmPassword : handleSendExtended}
+          onCancel={() => setStep('send')}
+        />
+      )}
+      {step === 'password-check' && passwordRequirement && (
+        <PasswordConfirmation
+          text="Enter your password to send the transaction."
+          buttonText="Send"
+          onCorrectPasswordEntered={handleSendExtended}
+        />
+      )}
+      <AnimatePresence>
+        {isConsolidateUTXOsModalVisible && (
+          <ConsolidateUTXOsModal
+            onClose={() => setIsConsolidateUTXOsModalVisible(false)}
+            onConsolidateClick={passwordRequirement ? confirmPassword : handleSendExtended}
+            fee={fees}
+          />
+        )}
+      </AnimatePresence>
+    </CenteredModal>
+  )
 }
 
 export const TxModal = ({ initialAddress, txModalType, onClose }: TxModalProps) => {
