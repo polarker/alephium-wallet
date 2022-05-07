@@ -19,7 +19,7 @@ along with the library. If not, see <http://www.gnu.org/licenses/>.
 import { APIError, convertAlphToSet, formatAmountForDisplay, getHumanReadableError } from '@alephium/sdk'
 import { SweepAddressTransaction } from '@alephium/sdk/api/alephium'
 import { AnimatePresence } from 'framer-motion'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { memo, useEffect, useMemo, useState } from 'react'
 import styled, { useTheme } from 'styled-components'
 
 import ExpandableSection from '../../components/ExpandableSection'
@@ -92,7 +92,7 @@ export function useTxModal<PT extends { fromAddress: Address }, T extends PT>(in
 
   const modalHeader = theme.name === 'dark' ? <PaperPlaneDarkSVG width="315px" /> : <PaperPlaneLightSVG width="315px" />
 
-  const TxModal = ({
+  const _TxModal = ({
     BuildTx,
     CheckTx,
     buildTransaction,
@@ -183,6 +183,7 @@ export function useTxModal<PT extends { fromAddress: Address }, T extends PT>(in
       </CenteredModal>
     )
   }
+  const TxModal = memo(_TxModal, (_) => true)
 
   return [
     TxModal,

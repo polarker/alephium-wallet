@@ -17,6 +17,7 @@ along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { convertAlphToSet } from '@alephium/sdk'
+import { memo } from 'react'
 
 import { Address } from '../../contexts/addresses'
 import { isAmountWithinRange } from '../../utils/transactions'
@@ -36,7 +37,7 @@ export interface BuildTransferTxProps {
   onCancel: () => void
 }
 
-const BuildTransferTx = ({ data, onSubmit, onCancel }: BuildTransferTxProps) => {
+const _BuildTransferTx = ({ data, onSubmit, onCancel }: BuildTransferTxProps) => {
   const [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] =
     useBuildTxCommon(data.fromAddress, data.alphAmount, data.gasAmount, data.gasPrice)
   const [toAddress, handleAddressChange] = useAddress(data?.toAddress ?? '')
@@ -72,5 +73,7 @@ const BuildTransferTx = ({ data, onSubmit, onCancel }: BuildTransferTxProps) => 
     </>
   )
 }
+
+const BuildTransferTx = memo(_BuildTransferTx, (_) => true)
 
 export default BuildTransferTx

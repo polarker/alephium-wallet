@@ -20,7 +20,7 @@ import { node, Val, toApiVal } from 'alephium-web3'
 import { APIError, convertAlphToSet, getHumanReadableError, formatAmountForDisplay } from '@alephium/sdk'
 import { SweepAddressTransaction } from '@alephium/sdk/api/alephium'
 import { AnimatePresence } from 'framer-motion'
-import { ReactNode, useEffect, useState } from 'react'
+import { memo, ReactNode, useEffect, useMemo, useState } from 'react'
 import styled, { DefaultTheme, useTheme } from 'styled-components'
 
 import AlefSymbol from '../../components/AlefSymbol'
@@ -104,11 +104,8 @@ export function useAddress(initialAddress: string) {
 export function useFromAddress(initialAddress: Address) {
   const [fromAddress, setFromAddress] = useState(initialAddress)
 
-  const FromAddress = () => (
-    <>
-      <FromAddressSelect defaultAddress={fromAddress} setFromAddress={setFromAddress} />
-    </>
-  )
+  const _FromAddress = () => <FromAddressSelect defaultAddress={fromAddress} setFromAddress={setFromAddress} />
+  const FromAddress = memo(_FromAddress)
 
   return [fromAddress, FromAddress] as const
 }
@@ -159,7 +156,7 @@ export function useBuildTxCommon(
 
   const isCommonReady = !gasAmount.error && !gasPrice.error
 
-  const AlphAmount = () => (
+  const _AlphAmount = () => (
     <TxAmount
       alphAmount={alphAmount}
       setAlphAmount={setAlphAmount}
@@ -167,13 +164,15 @@ export function useBuildTxCommon(
       expectedFeeInALPH={expectedFeeInALPH}
     />
   )
+  const AlphAmount = memo(_AlphAmount)
 
-  const GasSettings = () => (
+  const _GasSettings = () => (
     <ExpandableSectionStyled sectionTitleClosed="Gas">
       <GasAmount gasAmount={gasAmount} handleGasAmountChange={handleGasAmountChange} />
       <GasPrice theme={theme} gasPrice={gasPrice} handleGasPriceChange={handleGasPriceChange} />
     </ExpandableSectionStyled>
   )
+  const GasSettings = memo(_GasSettings)
 
   return [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] as const
 }
