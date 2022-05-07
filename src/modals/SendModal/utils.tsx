@@ -87,6 +87,18 @@ export function useStateWithError<T>(initialValue: T) {
   return [value, setValueWithError] as const
 }
 
+export function useFromAddress(initialAddress: Address) {
+  const { addresses } = useAddressesContext()
+  const updatedInitialAddress = addresses.find((a) => a.hash === initialAddress.hash) ?? initialAddress
+
+  const [fromAddress, setFromAddress] = useState(updatedInitialAddress)
+  const [FromAddress] = useState(
+    <FromAddressSelect defaultAddress={updatedInitialAddress} setFromAddress={setFromAddress} />
+  )
+
+  return [fromAddress, FromAddress] as const
+}
+
 export function useAddress(initialAddress: string) {
   const [address, setAddress] = useStateWithError(initialAddress)
 
@@ -117,7 +129,7 @@ export function useBuildTxCommon(
   initialGasPrice: string | undefined
 ) {
   const theme = useTheme()
-  const [fromAddress, setFromAddress] = useState(initialFromAddress)
+  const [fromAddress, FromAddress] = useFromAddress(initialFromAddress)
   const [alphAmount, setAlphAmount] = useState(initialAlphAmount ?? '')
   const [gasAmount, setGasAmount] = useStateWithError(initialGasAmount ?? '')
   const [gasPrice, setGasPrice] = useStateWithError(initialGasPrice ?? minimalGasPriceInALPH)
@@ -147,7 +159,7 @@ export function useBuildTxCommon(
 
   const isCommonReady = !gasAmount.error && !gasPrice.error
 
-  const AlphAmount = (
+  const [AlphAmount] = useState(
     <TxAmount
       alphAmount={alphAmount}
       setAlphAmount={setAlphAmount}
@@ -156,14 +168,14 @@ export function useBuildTxCommon(
     />
   )
 
-  const GasSettings = (
+  const [GasSettings] = useState(
     <ExpandableSectionStyled sectionTitleClosed="Gas">
       <GasAmount gasAmount={gasAmount} handleGasAmountChange={handleGasAmountChange} />
       <GasPrice theme={theme} gasPrice={gasPrice} handleGasPriceChange={handleGasPriceChange} />
     </ExpandableSectionStyled>
   )
 
-  return [fromAddress, setFromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] as const
+  return [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] as const
 }
 
 export const FromAddressSelect = ({

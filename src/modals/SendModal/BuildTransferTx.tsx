@@ -46,7 +46,7 @@ export interface BuildTransferTxProps {
 }
 
 const BuildTransferTx = ({ data, onSubmit, onCancel }: BuildTransferTxProps) => {
-  const [fromAddress, setFromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] =
+  const [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] =
     useBuildTxCommon(data.fromAddress, data.alphAmount, data.gasAmount, data.gasPrice)
   const [toAddress, handleAddressChange] = useAddress(data?.toAddress ?? '')
 
@@ -60,7 +60,7 @@ const BuildTransferTx = ({ data, onSubmit, onCancel }: BuildTransferTxProps) => 
   return (
     <>
       <ModalContent>
-        <FromAddressSelect defaultAddress={fromAddress} setFromAddress={setFromAddress} />
+        {FromAddress}
         <ToAddress toAddress={toAddress} handleAddressChange={handleAddressChange} />
         {AlphAmount}
       </ModalContent>

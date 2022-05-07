@@ -249,7 +249,4 @@ export const TxModal = ({ initialAddress, txModalType, onClose }: TxModalProps) 
   )
 }
 
-export const MemoizedTxModal = React.memo(
-  TxModal,
-  (prevProps, nextProps) => prevProps.initialAddress?.hash === nextProps.initialAddress?.hash
-)
+export const MemoizedTxModal = React.memo(TxModal, (_) => true)
