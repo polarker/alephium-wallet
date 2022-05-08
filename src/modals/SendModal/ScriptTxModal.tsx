@@ -62,6 +62,7 @@ const ScriptTxModal = ({ initialTxData, onClose }: ScriptTxModalProps) => {
 
   return (
     <TxModalFactory
+      buildTitle="Call Contract"
       initialTxData={initialTxData}
       onClose={onClose}
       BuildTx={BuildScriptTx}

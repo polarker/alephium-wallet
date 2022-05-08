@@ -60,6 +60,7 @@ const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
       context.setSweepUnsignedTxs(unsignedTxs)
       context.setFees(fees)
     } else {
+      console.log(`======= ${fromAddress.hash} -> ${toAddress}`)
       const { data } = await client.clique.transactionCreate(
         fromAddress.hash,
         fromAddress.publicKey,
@@ -117,6 +118,7 @@ const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
 
   return (
     <TxModalFactory
+      buildTitle="Send"
       initialTxData={initialTxData}
       onClose={onClose}
       BuildTx={BuildTransferTx}

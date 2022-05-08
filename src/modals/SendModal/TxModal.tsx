@@ -69,6 +69,7 @@ export type TxModalProps = {
 }
 
 export type TxModalFactoryProps<PT extends { fromAddress: Address }, T extends PT> = {
+  buildTitle: string
   initialTxData: PT
   onClose: () => void
   BuildTx: (props: { data: PT; onSubmit: (data: T) => void; onCancel: () => void }) => JSX.Element
@@ -78,6 +79,7 @@ export type TxModalFactoryProps<PT extends { fromAddress: Address }, T extends P
 }
 
 export function TxModalFactory<PT extends { fromAddress: Address }, T extends PT>({
+  buildTitle,
   initialTxData,
   onClose,
   BuildTx,
@@ -94,7 +96,7 @@ export function TxModalFactory<PT extends { fromAddress: Address }, T extends PT
     },
     setSnackbarMessage
   } = useGlobalContext()
-  const [title, setTitle] = useState('')
+  const [title, setTitle] = useState(buildTitle)
   const [transactionData, setTransactionData] = useState<T | undefined>()
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState<Step>('send')
@@ -125,7 +127,11 @@ export function TxModalFactory<PT extends { fromAddress: Address }, T extends PT
   })
 
   useEffect(() => {
-    setTitle(stepToTitle[step])
+    if (step !== 'send') {
+      setTitle(stepToTitle[step])
+    } else {
+      setTitle(buildTitle)
+    }
   }, [setStep, setTitle, step])
 
   const confirmPassword = () => {
@@ -249,4 +255,4 @@ export const TxModal = ({ initialAddress, txModalType, onClose }: TxModalProps) 
   )
 }
 
-export const MemoizedTxModal = React.memo(TxModal, (_) => true)
+export default TxModal

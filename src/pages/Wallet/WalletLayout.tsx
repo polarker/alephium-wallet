@@ -20,7 +20,7 @@ import { getStorage } from '@alephium/sdk'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Layers, List, Lock, RefreshCw, Send } from 'lucide-react'
+import { Layers, List, Lock, RefreshCw, Send, FileCode, TerminalSquare } from 'lucide-react'
 import React, { FC, useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import styled, { useTheme } from 'styled-components'
@@ -38,7 +38,7 @@ import LogoDarkSrc from '../../images/alephium_logo_dark.svg'
 import LogoLightSrc from '../../images/alephium_logo_light.svg'
 import CenteredModal from '../../modals/CenteredModal'
 import SendModal from '../../modals/SendModal'
-import { MemoizedTxModal } from '../../modals/SendModal/TxModal'
+import { TxModal } from '../../modals/SendModal/TxModal'
 import { appHeaderHeightPx, deviceBreakPoints, walletSidebarWidthPx } from '../../style/globalStyles'
 
 interface AccountNameSelectOptions {
@@ -132,18 +132,14 @@ const WalletLayout: FC = ({ children }) => {
           <ActionButton Icon={Layers} label="Overview" link="/wallet/overview" />
           <ActionButton Icon={List} label="Addresses" link="/wallet/addresses" />
           <ActionButton Icon={Send} label="Send" onClick={() => setTxModalType('transfer')} />
-          <ActionButton Icon={Send} label="Script" onClick={() => setTxModalType('script')} />
-          <ActionButton Icon={Send} label="Create Contract" onClick={() => setTxModalType('create-contract')} />
+          <ActionButton Icon={TerminalSquare} label="Call Contract" onClick={() => setTxModalType('script')} />
+          <ActionButton Icon={FileCode} label="Deploy Contract" onClick={() => setTxModalType('create-contract')} />
           <ActionButton Icon={Lock} label="Lock" onClick={lockWallet} />
         </WalletActions>
       </WalletSidebar>
       <AnimatePresence exitBeforeEnter initial={true}>
         {txModalType && (
-          <MemoizedTxModal
-            initialAddress={mainAddress}
-            txModalType={txModalType}
-            onClose={() => setTxModalType(false)}
-          />
+          <TxModal initialAddress={mainAddress} txModalType={txModalType} onClose={() => setTxModalType(false)} />
         )}
         {isPasswordModalOpen && (
           <CenteredModal title="Enter password" onClose={() => setIsPasswordModalOpen(false)}>

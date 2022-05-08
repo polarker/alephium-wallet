@@ -60,6 +60,7 @@ const CreateContractTxModal = ({ initialTxData, onClose }: CreateContractTxModal
 
   return (
     <TxModalFactory
+      buildTitle="Deploy Contract"
       initialTxData={initialTxData}
       onClose={onClose}
       BuildTx={BuildCreateContractTx}

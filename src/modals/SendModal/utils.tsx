@@ -92,9 +92,7 @@ export function useFromAddress(initialAddress: Address) {
   const updatedInitialAddress = addresses.find((a) => a.hash === initialAddress.hash) ?? initialAddress
 
   const [fromAddress, setFromAddress] = useState(updatedInitialAddress)
-  const [FromAddress] = useState(
-    <FromAddressSelect defaultAddress={updatedInitialAddress} setFromAddress={setFromAddress} />
-  )
+  const FromAddress = <FromAddressSelect defaultAddress={updatedInitialAddress} setFromAddress={setFromAddress} />
 
   return [fromAddress, FromAddress] as const
 }
@@ -159,7 +157,7 @@ export function useBuildTxCommon(
 
   const isCommonReady = !gasAmount.error && !gasPrice.error
 
-  const [AlphAmount] = useState(
+  const AlphAmount = (
     <TxAmount
       alphAmount={alphAmount}
       setAlphAmount={setAlphAmount}
@@ -168,7 +166,7 @@ export function useBuildTxCommon(
     />
   )
 
-  const [GasSettings] = useState(
+  const GasSettings = (
     <ExpandableSectionStyled sectionTitleClosed="Gas">
       <GasAmount gasAmount={gasAmount} handleGasAmountChange={handleGasAmountChange} />
       <GasPrice theme={theme} gasPrice={gasPrice} handleGasPriceChange={handleGasPriceChange} />
