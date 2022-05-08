@@ -63,13 +63,13 @@ const BuildCreateContractTx = ({ data, onSubmit, onCancel }: BuildCreateContract
   return (
     <>
       <ModalContent>
-        <FromAddress />
-        <AlphAmount />
+        {FromAddress}
+        {AlphAmount}
         <Bytecode />
         <Fields />
         <IssueTokenAmount />
       </ModalContent>
-      <GasSettings />
+      {GasSettings}
       <SubmitOrCancel
         onSubmit={() =>
           onSubmit({

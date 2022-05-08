@@ -183,7 +183,7 @@ export function useTxModal<PT extends { fromAddress: Address }, T extends PT>(in
       </CenteredModal>
     )
   }
-  const TxModal = memo(_TxModal, (_) => true)
+  const [TxModal] = useState<typeof _TxModal>(() => _TxModal)
 
   return [
     TxModal,

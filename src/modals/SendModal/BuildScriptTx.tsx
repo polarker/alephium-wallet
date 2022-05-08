@@ -51,11 +51,11 @@ const BuildScriptTx = ({ data, onSubmit, onCancel }: BuildScriptTxProps) => {
   return (
     <>
       <ModalContent>
-        <FromAddress />
-        <AlphAmount />
+        {FromAddress}
+        {AlphAmount}
         <Bytecode />
       </ModalContent>
-      <GasSettings />
+      {GasSettings}
       <SubmitOrCancel
         onSubmit={() =>
           onSubmit({

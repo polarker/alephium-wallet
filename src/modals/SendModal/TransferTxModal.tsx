@@ -56,6 +56,7 @@ const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
     [sweepUnsignedTxs, setSweepUnsignedTxs],
     setFees
   ] = useTxModal<BuildTransferTxProps['data'], BuildTransferTxData>(initialTxData, onClose)
+  console.log(JSON.stringify(TxModal))
 
   const { setAddress } = useAddressesContext()
   const [unsignedTxId, setUnsignedTxId] = useState('')

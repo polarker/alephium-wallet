@@ -104,8 +104,8 @@ export function useAddress(initialAddress: string) {
 export function useFromAddress(initialAddress: Address) {
   const [fromAddress, setFromAddress] = useState(initialAddress)
 
-  const _FromAddress = () => <FromAddressSelect defaultAddress={fromAddress} setFromAddress={setFromAddress} />
-  const FromAddress = memo(_FromAddress)
+  const _FromAddress = <FromAddressSelect defaultAddress={fromAddress} setFromAddress={setFromAddress} />
+  const [FromAddress] = useState(_FromAddress)
 
   return [fromAddress, FromAddress] as const
 }
@@ -164,7 +164,7 @@ export function useBuildTxCommon(
       expectedFeeInALPH={expectedFeeInALPH}
     />
   )
-  const AlphAmount = memo(_AlphAmount)
+  const [AlphAmount] = useState(() => _AlphAmount)
 
   const _GasSettings = () => (
     <ExpandableSectionStyled sectionTitleClosed="Gas">
@@ -172,7 +172,7 @@ export function useBuildTxCommon(
       <GasPrice theme={theme} gasPrice={gasPrice} handleGasPriceChange={handleGasPriceChange} />
     </ExpandableSectionStyled>
   )
-  const GasSettings = memo(_GasSettings)
+  const [GasSettings] = useState(() => _GasSettings)
 
   return [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] as const
 }
