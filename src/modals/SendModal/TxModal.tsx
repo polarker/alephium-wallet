@@ -41,7 +41,7 @@ import CheckTransferTx from './CheckTransferTx'
 import SendModalTransactionForm from './TransactionForm'
 import BuildScriptTxModal from './BuildScriptTx'
 import TransferTxModal from './TransferTxModal'
-import CreateContractTxModal from './CreateContractTxModal'
+import DeployContractTxModal from './DeployContractTxModal'
 import ScriptTxModal from './ScriptTxModal'
 import { NetworkType } from '../../utils/settings'
 
@@ -249,7 +249,7 @@ export const TxModal = ({ initialAddress, txModalType, onClose }: TxModalProps) 
   return (
     <>
       {txModalType === 'transfer' && <TransferTxModal initialTxData={txData} onClose={onClose} />}
-      {txModalType === 'create-contract' && <CreateContractTxModal initialTxData={txData} onClose={onClose} />}
+      {txModalType === 'deploy-contract' && <DeployContractTxModal initialTxData={txData} onClose={onClose} />}
       {txModalType === 'script' && <ScriptTxModal initialTxData={txData} onClose={onClose} />}
     </>
   )

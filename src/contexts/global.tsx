@@ -43,7 +43,7 @@ if (deprecatedSettingsExist()) {
   localStorageSettings = migrateDeprecatedSettings()
 }
 
-export type TxModalType = 'transfer' | 'create-contract' | 'script'
+export type TxModalType = 'transfer' | 'deploy-contract' | 'script'
 
 export interface GlobalContextProps {
   currentAccountName: string
