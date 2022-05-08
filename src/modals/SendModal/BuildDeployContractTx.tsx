@@ -30,7 +30,7 @@ import {
   useIssueTokenAmount
 } from './utils'
 
-export interface BuildCreateContractTxData {
+export interface BuildDeployContractTxData {
   fromAddress: Address
   bytecode: string
   initialFields: node.Val[]
@@ -41,13 +41,13 @@ export interface BuildCreateContractTxData {
   gasPrice?: string
 }
 
-export interface BuildCreateContractTxProps {
-  data: PartialTxData<BuildCreateContractTxData, 'fromAddress'>
-  onSubmit: (data: BuildCreateContractTxData) => void
+export interface BuildDeployContractTxProps {
+  data: PartialTxData<BuildDeployContractTxData, 'fromAddress'>
+  onSubmit: (data: BuildDeployContractTxData) => void
   onCancel: () => void
 }
 
-const BuildCreateContractTx = ({ data, onSubmit, onCancel }: BuildCreateContractTxProps) => {
+const BuildDeployContractTx = ({ data, onSubmit, onCancel }: BuildDeployContractTxProps) => {
   const [fromAddress, FromAddress, alphAmount, AlphAmount, gasAmount, gasPrice, GasSettings, isCommonReady] =
     useBuildTxCommon(data.fromAddress, data.alphAmount, data.gasAmount, data.gasPrice)
   const [bytecode, Bytecode] = useBytecode(data.bytecode ?? '')
@@ -89,4 +89,4 @@ const BuildCreateContractTx = ({ data, onSubmit, onCancel }: BuildCreateContract
   )
 }
 
-export default BuildCreateContractTx
+export default BuildDeployContractTx

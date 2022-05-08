@@ -16,7 +16,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { BuildCreateContractTxData } from './BuildCreateContractTx'
+import { BuildDeployContractTxData } from './BuildDeployContractTx'
 import {
   AlphAmountInfo,
   BytecodeInfo,
@@ -30,7 +30,7 @@ import {
   ModalContent
 } from './utils'
 
-const CheckCreateContractTx = ({ data, fees, onSend, onCancel }: CheckTxProps<BuildCreateContractTxData>) => {
+const CheckDeployContractTx = ({ data, fees, onSend, onCancel }: CheckTxProps<BuildDeployContractTxData>) => {
   return (
     <>
       <ModalContent>
@@ -46,4 +46,4 @@ const CheckCreateContractTx = ({ data, fees, onSend, onCancel }: CheckTxProps<Bu
   )
 }
 
-export default CheckCreateContractTx
+export default CheckDeployContractTx

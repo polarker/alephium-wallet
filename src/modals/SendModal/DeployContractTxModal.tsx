@@ -41,20 +41,20 @@ import CheckTransferTx from './CheckTransferTx'
 import SendModalTransactionForm from './TransactionForm'
 import BuildScriptTxModal from './BuildScriptTx'
 import { TxContext, TxModalFactory } from './TxModal'
-import BuildCreateContractTx, { BuildCreateContractTxData, BuildCreateContractTxProps } from './BuildCreateContractTx'
-import CheckCreateContractTx from './CheckCreateContractTx'
+import BuildDeployContractTx, { BuildDeployContractTxData, BuildDeployContractTxProps } from './BuildDeployContractTx'
+import CheckDeployContractTx from './CheckDeployContractTx'
 
-export type CreateContractTxModalProps = {
-  initialTxData: BuildCreateContractTxProps['data']
+export type DeployContractTxModalProps = {
+  initialTxData: BuildDeployContractTxProps['data']
   onClose: () => void
 }
 
-const CreateContractTxModal = ({ initialTxData, onClose }: CreateContractTxModalProps) => {
-  const buildTransaction = async (client: Client, transactionData: BuildCreateContractTxData, context: TxContext) => {
+const DeployContractTxModal = ({ initialTxData, onClose }: DeployContractTxModalProps) => {
+  const buildTransaction = async (client: Client, transactionData: BuildDeployContractTxData, context: TxContext) => {
     return
   }
 
-  const handleSend = async (client: Client, transactionData: BuildCreateContractTxData, context: TxContext) => {
+  const handleSend = async (client: Client, transactionData: BuildDeployContractTxData, context: TxContext) => {
     return
   }
 
@@ -63,12 +63,12 @@ const CreateContractTxModal = ({ initialTxData, onClose }: CreateContractTxModal
       buildTitle="Deploy Contract"
       initialTxData={initialTxData}
       onClose={onClose}
-      BuildTx={BuildCreateContractTx}
-      CheckTx={CheckCreateContractTx}
+      BuildTx={BuildDeployContractTx}
+      CheckTx={CheckDeployContractTx}
       buildTransaction={buildTransaction}
       handleSend={handleSend}
     />
   )
 }
 
-export default CreateContractTxModal
+export default DeployContractTxModal

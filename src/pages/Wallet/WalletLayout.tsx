@@ -133,7 +133,7 @@ const WalletLayout: FC = ({ children }) => {
           <ActionButton Icon={List} label="Addresses" link="/wallet/addresses" />
           <ActionButton Icon={Send} label="Send" onClick={() => setTxModalType('transfer')} />
           <ActionButton Icon={TerminalSquare} label="Call Contract" onClick={() => setTxModalType('script')} />
-          <ActionButton Icon={FileCode} label="Deploy Contract" onClick={() => setTxModalType('create-contract')} />
+          <ActionButton Icon={FileCode} label="Deploy Contract" onClick={() => setTxModalType('deploy-contract')} />
           <ActionButton Icon={Lock} label="Lock" onClick={lockWallet} />
         </WalletActions>
       </WalletSidebar>
