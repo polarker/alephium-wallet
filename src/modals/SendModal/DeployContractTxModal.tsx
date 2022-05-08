@@ -17,7 +17,8 @@ along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { convertAlphToSet } from '@alephium/sdk'
-import { convertHttpResponse } from 'alephium-web3'
+import { binToHex, contractIdFromAddress, convertHttpResponse, SignContractCreationTxResult } from 'alephium-web3'
+import { useState } from 'react'
 
 import { Client } from '../../contexts/global'
 import BuildDeployContractTx, { BuildDeployContractTxData, BuildDeployContractTxProps } from './BuildDeployContractTx'
@@ -30,6 +31,8 @@ export type DeployContractTxModalProps = {
 }
 
 const DeployContractTxModal = ({ initialTxData, onClose }: DeployContractTxModalProps) => {
+  const [contractAddress, setContractAddress] = useState<string | undefined>()
+
   const buildTransaction = async (client: Client, data: BuildDeployContractTxData, context: TxContext) => {
     const params = {
       fromPublicKey: data.fromAddress.publicKey,
@@ -53,18 +56,31 @@ const DeployContractTxModal = ({ initialTxData, onClose }: DeployContractTxModal
       })
     )
     console.log(`====== contract: ${response.contractAddress}`)
+    setContractAddress(response.contractAddress)
     context.setUnsignedTransaction(response.unsignedTx)
     context.setUnsignedTxId(response.txId)
     context.setFees(BigInt(1))
   }
 
   const handleSend = async (client: Client, txData: BuildDeployContractTxData, context: TxContext) => {
-    await client.signAndSendContractOrScript(
+    const data = await client.signAndSendContractOrScript(
       txData.fromAddress,
       context.unsignedTxId,
       context.unsignedTransaction,
       context.currentNetwork
     )
+    return data.signature
+  }
+
+  const getWalletConnectResult = (context: TxContext, signature: string): SignContractCreationTxResult => {
+    const contractId = binToHex(contractIdFromAddress(contractAddress!))
+    return {
+      unsignedTx: context.unsignedTransaction,
+      txId: context.unsignedTxId,
+      signature: signature,
+      contractAddress: contractAddress!,
+      contractId: contractId
+    }
   }
 
   return (
@@ -76,6 +92,7 @@ const DeployContractTxModal = ({ initialTxData, onClose }: DeployContractTxModal
       CheckTx={CheckDeployContractTx}
       buildTransaction={buildTransaction}
       handleSend={handleSend}
+      getWalletConnectResult={getWalletConnectResult}
     />
   )
 }

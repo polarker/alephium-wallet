@@ -17,7 +17,7 @@ along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { convertAlphToSet } from '@alephium/sdk'
-import { convertHttpResponse } from 'alephium-web3'
+import { convertHttpResponse, SignScriptTxResult } from 'alephium-web3'
 
 import { Client } from '../../contexts/global'
 import { BuildScriptTxData, BuildScriptTxProps } from './BuildScriptTx'
@@ -48,12 +48,21 @@ const ScriptTxModal = ({ initialTxData, onClose }: ScriptTxModalProps) => {
   }
 
   const handleSend = async (client: Client, txData: BuildScriptTxData, ctx: TxContext) => {
-    await client.signAndSendContractOrScript(
+    const data = await client.signAndSendContractOrScript(
       txData.fromAddress,
       ctx.unsignedTxId,
       ctx.unsignedTransaction,
       ctx.currentNetwork
     )
+    return data.signature
+  }
+
+  const getWalletConnectResult = (context: TxContext, signature: string): SignScriptTxResult => {
+    return {
+      unsignedTx: context.unsignedTransaction,
+      txId: context.unsignedTxId,
+      signature: signature
+    }
   }
 
   return (
@@ -65,6 +74,7 @@ const ScriptTxModal = ({ initialTxData, onClose }: ScriptTxModalProps) => {
       CheckTx={CheckScriptTx}
       buildTransaction={buildTransaction}
       handleSend={handleSend}
+      getWalletConnectResult={getWalletConnectResult}
     />
   )
 }

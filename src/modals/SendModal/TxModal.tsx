@@ -25,6 +25,7 @@ import { useTheme } from 'styled-components'
 import PasswordConfirmation from '../../components/PasswordConfirmation'
 import { Address, useAddressesContext } from '../../contexts/addresses'
 import { Client, TxModalType, useGlobalContext } from '../../contexts/global'
+import { useWalletConnectContext } from '../../contexts/walletconnect'
 import { ReactComponent as PaperPlaneDarkSVG } from '../../images/paper-plane-dark.svg'
 import { ReactComponent as PaperPlaneLightSVG } from '../../images/paper-plane-light.svg'
 import { NetworkType } from '../../utils/settings'
@@ -34,6 +35,7 @@ import { Step, stepToTitle } from '.'
 import DeployContractTxModal from './DeployContractTxModal'
 import ScriptTxModal from './ScriptTxModal'
 import TransferTxModal from './TransferTxModal'
+import { SignResult } from 'alephium-web3'
 
 type ReactSet<T> = Dispatch<SetStateAction<T>>
 
@@ -53,7 +55,6 @@ export type TxContext = {
 }
 
 export type TxModalProps = {
-  initialAddress: Address | undefined
   txModalType: TxModalType
   onClose: () => void
 }
@@ -64,8 +65,9 @@ export type TxModalFactoryProps<PT extends { fromAddress: Address }, T extends P
   onClose: () => void
   BuildTx: (props: { data: PT; onSubmit: (data: T) => void; onCancel: () => void }) => JSX.Element
   CheckTx: (props: { data: T; fees: bigint; onSend: () => void; onCancel: () => void }) => JSX.Element
-  buildTransaction: (client: Client, data: T, context: TxContext) => void
-  handleSend: (client: Client, data: T, context: TxContext) => void
+  buildTransaction: (client: Client, data: T, context: TxContext) => Promise<void>
+  handleSend: (client: Client, data: T, context: TxContext) => Promise<string | undefined>
+  getWalletConnectResult: (context: TxContext, signature: string) => SignResult
 }
 
 export function TxModalFactory<PT extends { fromAddress: Address }, T extends PT>({
@@ -75,7 +77,8 @@ export function TxModalFactory<PT extends { fromAddress: Address }, T extends PT
   BuildTx,
   CheckTx,
   buildTransaction,
-  handleSend
+  handleSend,
+  getWalletConnectResult
 }: TxModalFactoryProps<PT, T>) {
   const {
     currentNetwork,
@@ -96,6 +99,7 @@ export function TxModalFactory<PT extends { fromAddress: Address }, T extends PT
   const [sweepUnsignedTxs, setSweepUnsignedTxs] = useState<SweepAddressTransaction[]>([])
   const [fees, setFees] = useState<bigint>()
   const theme = useTheme()
+  const { requestEvent, walletConnect } = useWalletConnectContext()
 
   const { setAddress } = useAddressesContext()
   const [unsignedTxId, setUnsignedTxId] = useState('')
@@ -174,11 +178,25 @@ export function TxModalFactory<PT extends { fromAddress: Address }, T extends PT
     }
   }
 
-  const handleSendExtended = () => {
+  const handleSendExtended = async () => {
     if (client && transactionData) {
       setIsLoading(true)
       try {
-        handleSend(client, transactionData, getTxContext())
+        const txContext = getTxContext()
+        const signature = await handleSend(client, transactionData, txContext)
+
+        if (signature && requestEvent && walletConnect) {
+          const wcResult = getWalletConnectResult(txContext, signature)
+          await walletConnect.respond({
+            topic: requestEvent.topic,
+            response: {
+              id: requestEvent.request.id,
+              jsonrpc: '2.0',
+              result: wcResult
+            }
+          })
+        }
+
         setAddress(transactionData.fromAddress)
         setSnackbarMessage({
           text: isSweeping && sweepUnsignedTxs.length > 1 ? 'Transactions sent!' : 'Transaction sent!',
@@ -229,14 +247,23 @@ export function TxModalFactory<PT extends { fromAddress: Address }, T extends PT
   )
 }
 
-export const TxModal = ({ initialAddress, txModalType, onClose }: TxModalProps) => {
-  if (typeof initialAddress === 'undefined') {
-    return <></>
+export const TxModal = ({ txModalType, onClose }: TxModalProps) => {
+  const { mainAddress } = useAddressesContext()
+  const { dappTransactionData } = useWalletConnectContext()
+
+  let txData
+  if (typeof dappTransactionData === 'undefined') {
+    if (typeof mainAddress === 'undefined') {
+      return <></>
+    } else {
+      txData = { fromAddress: mainAddress }
+    }
+  } else {
+    txData = dappTransactionData[1]
   }
 
   console.log('========== refresh TxModal')
 
-  const txData = { fromAddress: initialAddress }
   return (
     <>
       {txModalType === 'transfer' && <TransferTxModal initialTxData={txData} onClose={onClose} />}

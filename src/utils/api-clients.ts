@@ -132,7 +132,7 @@ export async function createClient(settings: Settings['network']) {
         })
       }
 
-      return response.data
+      return { ...response.data, signature: signature }
     }
 
     const signAndSendContractOrScript = async (
@@ -154,7 +154,7 @@ export async function createClient(settings: Settings['network']) {
         })
       }
 
-      return response.data
+      return { ...response.data, signature: signature }
     }
 
     return {

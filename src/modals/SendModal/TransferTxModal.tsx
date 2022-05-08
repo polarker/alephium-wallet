@@ -22,6 +22,8 @@ import { Client } from '../../contexts/global'
 import BuildTransferTx, { BuildTransferTxData, BuildTransferTxProps } from './BuildTransferTx'
 import CheckTransferTx from './CheckTransferTx'
 import { TxContext, TxModalFactory } from './TxModal'
+import { useWalletConnectContext } from '../../contexts/walletconnect'
+import { SignTransferTxResult } from 'alephium-web3'
 
 export type TransferTxModalProps = {
   initialTxData: BuildTransferTxProps['data']
@@ -30,6 +32,7 @@ export type TransferTxModalProps = {
 
 const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
   console.log('============ refresh transfer')
+  const { requestEvent, walletConnect } = useWalletConnectContext()
 
   const buildTransaction = async (client: Client, transactionData: BuildTransferTxData, context: TxContext) => {
     const { fromAddress, toAddress, alphAmount, gasAmount, gasPrice } = transactionData
@@ -90,13 +93,16 @@ const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
           context.currentNetwork,
           convertAlphToSet(alphAmount)
         )
-
-        if (data) {
-          context.setAddress(fromAddress)
-        }
+        return data.signature
       }
     }
   }
+
+  const getWalletConnectResult = (context: TxContext, signature: string): SignTransferTxResult => ({
+    unsignedTx: context.unsignedTransaction,
+    txId: context.unsignedTxId,
+    signature: signature
+  })
 
   return (
     <TxModalFactory
@@ -107,6 +113,7 @@ const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
       CheckTx={CheckTransferTx}
       buildTransaction={buildTransaction}
       handleSend={handleSend}
+      getWalletConnectResult={getWalletConnectResult}
     />
   )
 }
