@@ -45,6 +45,7 @@ import BuildDeployContractTx, { BuildDeployContractTxData, BuildDeployContractTx
 import CheckDeployContractTx from './CheckDeployContractTx'
 import BuildScriptTx from './BuildScriptTx'
 import CheckScriptTx from './CheckScriptTx'
+import { convertHttpResponse } from 'alephium-web3'
 
 export type ScriptTxModalProps = {
   initialTxData: BuildScriptTxProps['data']
@@ -52,12 +53,29 @@ export type ScriptTxModalProps = {
 }
 
 const ScriptTxModal = ({ initialTxData, onClose }: ScriptTxModalProps) => {
-  const buildTransaction = async (client: Client, transactionData: BuildScriptTxData, ctx: TxContext) => {
-    return
+  const buildTransaction = async (client: Client, txData: BuildScriptTxData, ctx: TxContext) => {
+    const response = convertHttpResponse(
+      await client.clique.contracts.postContractsUnsignedTxBuildScript({
+        fromPublicKey: txData.fromAddress.publicKey,
+        bytecode: txData.bytecode,
+        alphAmount: txData.alphAmount,
+        tokens: undefined,
+        gas: txData.gasAmount,
+        gasPrice: txData.gasPrice ? convertAlphToSet(txData.gasPrice).toString() : undefined
+      })
+    )
+    ctx.setUnsignedTransaction(response.unsignedTx)
+    ctx.setUnsignedTxId(response.txId)
+    ctx.setFees(BigInt(1))
   }
 
-  const handleSend = async (client: Client, transactionData: BuildScriptTxData, ctx: TxContext) => {
-    return
+  const handleSend = async (client: Client, txData: BuildScriptTxData, ctx: TxContext) => {
+    await client.signAndSendContractOrScript(
+      txData.fromAddress,
+      ctx.unsignedTxId,
+      ctx.unsignedTransaction,
+      ctx.currentNetwork
+    )
   }
 
   return (

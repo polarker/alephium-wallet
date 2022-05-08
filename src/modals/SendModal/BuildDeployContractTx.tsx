@@ -37,7 +37,7 @@ export interface BuildDeployContractTxData {
 
   alphAmount?: string
   issueTokenAmount?: string
-  gasAmount?: string
+  gasAmount?: number
   gasPrice?: string
 }
 
@@ -52,21 +52,20 @@ const BuildDeployContractTx = ({ data, onSubmit, onCancel }: BuildDeployContract
     useBuildTxCommon(data.fromAddress, data.alphAmount, data.gasAmount, data.gasPrice)
   const [bytecode, Bytecode] = useBytecode(data.bytecode ?? '')
   const [fields, Fields] = useContractFields(data.initialFields ?? [])
-  const [issueTokenAmount, IssueTokenAmount] = useIssueTokenAmount(data.issueTokenAmount ?? '0')
+  const [issueTokenAmount, IssueTokenAmount] = useIssueTokenAmount(data.issueTokenAmount ?? '')
 
   const isSubmitButtonActive =
     isCommonReady &&
-    !bytecode &&
-    alphAmount &&
-    isAmountWithinRange(convertAlphToSet(alphAmount), fromAddress.availableBalance)
+    bytecode &&
+    (!alphAmount || isAmountWithinRange(convertAlphToSet(alphAmount), fromAddress.availableBalance))
 
   return (
     <>
       <ModalContent>
         {FromAddress}
-        {AlphAmount}
         {Bytecode}
         {Fields}
+        {AlphAmount}
         {IssueTokenAmount}
       </ModalContent>
       {GasSettings}
@@ -76,10 +75,10 @@ const BuildDeployContractTx = ({ data, onSubmit, onCancel }: BuildDeployContract
             fromAddress: data.fromAddress,
             bytecode: bytecode,
             initialFields: fields.fields,
-            issueTokenAmount: issueTokenAmount,
-            alphAmount: alphAmount,
+            issueTokenAmount: issueTokenAmount ? issueTokenAmount : undefined,
+            alphAmount: alphAmount ? alphAmount : undefined,
             gasAmount: gasAmount.value,
-            gasPrice: gasPrice.value
+            gasPrice: gasPrice.value ? gasPrice.value : undefined
           })
         }
         onCancel={onCancel}

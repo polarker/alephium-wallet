@@ -67,7 +67,7 @@ const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
         toAddress,
         amountInSet.toString(),
         undefined,
-        gasAmount ? parseInt(gasAmount) : undefined,
+        gasAmount ? gasAmount : undefined,
         gasPrice ? convertAlphToSet(gasPrice).toString() : undefined
       )
       context.setUnsignedTransaction(data.unsignedTx)
@@ -77,7 +77,8 @@ const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
   }
 
   const handleSend = async (client: Client, transactionData: BuildTransferTxData, context: TxContext) => {
-    const { fromAddress, toAddress, alphAmount } = transactionData
+    const { fromAddress, toAddress, alphAmount, ...rest } = transactionData
+    console.log(`======= data: ${alphAmount} ${JSON.stringify(rest)}`)
 
     if (toAddress) {
       if (context.isSweeping) {

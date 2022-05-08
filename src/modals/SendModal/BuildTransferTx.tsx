@@ -35,7 +35,7 @@ export interface BuildTransferTxData {
   fromAddress: Address
   toAddress: string
   alphAmount: string
-  gasAmount?: string
+  gasAmount?: number
   gasPrice?: string
 }
 
@@ -57,6 +57,7 @@ const BuildTransferTx = ({ data, onSubmit, onCancel }: BuildTransferTxProps) => 
     alphAmount &&
     isAmountWithinRange(convertAlphToSet(alphAmount), fromAddress.availableBalance)
 
+  console.log(`========= convert ${gasPrice.value} ${convertAlphToSet(gasPrice.value)}`)
   return (
     <>
       <ModalContent>
@@ -72,7 +73,7 @@ const BuildTransferTx = ({ data, onSubmit, onCancel }: BuildTransferTxProps) => 
             toAddress: toAddress.value,
             alphAmount: alphAmount,
             gasAmount: gasAmount.value,
-            gasPrice: gasPrice.value
+            gasPrice: gasPrice.value ? gasPrice.value : undefined
           })
         }
         onCancel={onCancel}

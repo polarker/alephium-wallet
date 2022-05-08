@@ -87,6 +87,17 @@ export function useStateWithError<T>(initialValue: T) {
   return [value, setValueWithError] as const
 }
 
+export type Parsed<T> = WithError<T> & { rawValue: string }
+export function useParsedState<T>(initialValue: T) {
+  const [value, setValue] = useState({ value: initialValue, rawValue: JSON.stringify(initialValue), error: '' })
+
+  const setValueWithError = (newValue: string, parsed: T, newError: string) => {
+    setValue({ value: parsed, rawValue: newValue, error: newError })
+  }
+
+  return [value, setValueWithError] as const
+}
+
 export function useFromAddress(initialAddress: Address) {
   const { addresses } = useAddressesContext()
   const updatedInitialAddress = addresses.find((a) => a.hash === initialAddress.hash) ?? initialAddress
@@ -123,13 +134,13 @@ export function useBytecode(initialBytecode: string) {
 export function useBuildTxCommon(
   initialFromAddress: Address,
   initialAlphAmount: string | undefined,
-  initialGasAmount: string | undefined,
+  initialGasAmount: number | undefined,
   initialGasPrice: string | undefined
 ) {
   const theme = useTheme()
   const [fromAddress, FromAddress] = useFromAddress(initialFromAddress)
   const [alphAmount, setAlphAmount] = useState(initialAlphAmount ?? '')
-  const [gasAmount, setGasAmount] = useStateWithError(initialGasAmount ?? '')
+  const [gasAmount, setGasAmount] = useParsedState(initialGasAmount)
   const [gasPrice, setGasPrice] = useStateWithError(initialGasPrice ?? minimalGasPriceInALPH)
 
   console.log('======== useBuildTx')
@@ -137,9 +148,9 @@ export function useBuildTxCommon(
   const handleGasAmountChange = (newGasAmount: string) => {
     const error = checkAmount(newGasAmount, BigInt(MINIMAL_GAS_AMOUNT), false)
     if (typeof error !== 'undefined') {
-      setGasAmount(newGasAmount, error)
+      setGasAmount(newGasAmount, parseInt(newGasAmount), error)
     } else {
-      setGasAmount(newGasAmount, '')
+      setGasAmount(newGasAmount, undefined, '')
     }
   }
 
@@ -153,7 +164,9 @@ export function useBuildTxCommon(
   }
 
   const expectedFeeInALPH =
-    gasAmount && gasPrice && formatAmountForDisplay(BigInt(gasAmount.value) * convertAlphToSet(gasPrice.value), true)
+    typeof gasAmount.value !== 'undefined' && gasPrice.error === '' && gasPrice.value !== ''
+      ? formatAmountForDisplay(BigInt(gasAmount.value) * convertAlphToSet(gasPrice.value), true)
+      : ''
 
   const isCommonReady = !gasAmount.error && !gasPrice.error
 
@@ -244,14 +257,14 @@ export const GasAmount = ({
   gasAmount,
   handleGasAmountChange
 }: {
-  gasAmount: WithError<string>
+  gasAmount: Parsed<number | undefined>
   handleGasAmountChange: (error: string) => void
 }) => {
   return (
     <Input
       id="gas-amount"
       placeholder="Gas amount"
-      value={gasAmount.value}
+      value={gasAmount.rawValue}
       onChange={(e) => handleGasAmountChange(e.target.value)}
       type="number"
       min={MINIMAL_GAS_AMOUNT}
@@ -367,11 +380,11 @@ export const InitialFields = ({
 }
 
 export function useIssueTokenAmount(initialTokenAmount: string | undefined) {
-  const [issueTokenAmount, setIssueTokenAmount] = useState(initialTokenAmount ?? '0')
+  const [issueTokenAmount, setIssueTokenAmount] = useState(initialTokenAmount ?? '')
   const IssueTokenAmount = (
     <Input
       id="issue-token-amount"
-      placeholder="Tokens to issue"
+      placeholder="Tokens to issue (optional)"
       value={issueTokenAmount}
       type="number"
       onChange={(e) => setIssueTokenAmount(e.target.value)}

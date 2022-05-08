@@ -43,6 +43,7 @@ import BuildScriptTxModal from './BuildScriptTx'
 import { TxContext, TxModalFactory } from './TxModal'
 import BuildDeployContractTx, { BuildDeployContractTxData, BuildDeployContractTxProps } from './BuildDeployContractTx'
 import CheckDeployContractTx from './CheckDeployContractTx'
+import { convertHttpResponse } from 'alephium-web3'
 
 export type DeployContractTxModalProps = {
   initialTxData: BuildDeployContractTxProps['data']
@@ -50,12 +51,41 @@ export type DeployContractTxModalProps = {
 }
 
 const DeployContractTxModal = ({ initialTxData, onClose }: DeployContractTxModalProps) => {
-  const buildTransaction = async (client: Client, transactionData: BuildDeployContractTxData, context: TxContext) => {
-    return
+  const buildTransaction = async (client: Client, data: BuildDeployContractTxData, context: TxContext) => {
+    const params = {
+      fromPublicKey: data.fromAddress.publicKey,
+      bytecode: data.bytecode,
+      initialFields: data.initialFields,
+      alphAmount: data.alphAmount,
+      issueTokenAmount: data.issueTokenAmount,
+      gas: data.gasAmount,
+      gasPrice: data.gasPrice ? convertAlphToSet(data.gasPrice).toString() : undefined
+    }
+    console.log(`========= params ${JSON.stringify(params)}`)
+    const response = convertHttpResponse(
+      await client.clique.contracts.postContractsUnsignedTxBuildContract({
+        fromPublicKey: data.fromAddress.publicKey,
+        bytecode: data.bytecode,
+        initialFields: data.initialFields,
+        alphAmount: data.alphAmount,
+        issueTokenAmount: data.issueTokenAmount,
+        gas: data.gasAmount,
+        gasPrice: data.gasPrice ? convertAlphToSet(data.gasPrice).toString() : undefined
+      })
+    )
+    console.log(`====== contract: ${response.contractAddress}`)
+    context.setUnsignedTransaction(response.unsignedTx)
+    context.setUnsignedTxId(response.txId)
+    context.setFees(BigInt(1))
   }
 
-  const handleSend = async (client: Client, transactionData: BuildDeployContractTxData, context: TxContext) => {
-    return
+  const handleSend = async (client: Client, txData: BuildDeployContractTxData, context: TxContext) => {
+    await client.signAndSendContractOrScript(
+      txData.fromAddress,
+      context.unsignedTxId,
+      context.unsignedTransaction,
+      context.currentNetwork
+    )
   }
 
   return (

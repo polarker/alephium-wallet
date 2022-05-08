@@ -27,7 +27,7 @@ export interface BuildScriptTxData {
   bytecode: string
 
   alphAmount?: string
-  gasAmount?: string
+  gasAmount?: number
   gasPrice?: string
 }
 
@@ -44,9 +44,8 @@ const BuildScriptTx = ({ data, onSubmit, onCancel }: BuildScriptTxProps) => {
 
   const isSubmitButtonActive =
     isCommonReady &&
-    !bytecode &&
-    alphAmount &&
-    isAmountWithinRange(convertAlphToSet(alphAmount), fromAddress.availableBalance)
+    bytecode &&
+    (!alphAmount || isAmountWithinRange(convertAlphToSet(alphAmount), fromAddress.availableBalance))
 
   return (
     <>
@@ -61,9 +60,9 @@ const BuildScriptTx = ({ data, onSubmit, onCancel }: BuildScriptTxProps) => {
           onSubmit({
             fromAddress: data.fromAddress,
             bytecode: bytecode,
-            alphAmount: alphAmount,
+            alphAmount: alphAmount ? alphAmount : undefined,
             gasAmount: gasAmount.value,
-            gasPrice: gasPrice.value
+            gasPrice: gasPrice.value ? gasPrice.value : undefined
           })
         }
         onCancel={onCancel}

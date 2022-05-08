@@ -189,6 +189,7 @@ export function TxModalFactory<PT extends { fromAddress: Address }, T extends PT
       setIsLoading(true)
       try {
         handleSend(client, transactionData, getTxContext())
+        setAddress(transactionData.fromAddress)
         setSnackbarMessage({
           text: isSweeping && sweepUnsignedTxs.length > 1 ? 'Transactions sent!' : 'Transaction sent!',
           type: 'success'
