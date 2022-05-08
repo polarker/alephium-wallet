@@ -16,16 +16,14 @@ You should have received a copy of the GNU Lesser General Public License
 along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { APIError, convertAlphToSet, getHumanReadableError, formatAmountForDisplay } from '@alephium/sdk'
+import { APIError, convertAlphToSet, getHumanReadableError } from '@alephium/sdk'
 import { SweepAddressTransaction } from '@alephium/sdk/api/alephium'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import styled, { useTheme } from 'styled-components'
+import { useTheme } from 'styled-components'
 
 import PasswordConfirmation from '../../components/PasswordConfirmation'
-import ExpandableSection from '../../components/ExpandableSection'
 import { Address, useAddressesContext } from '../../contexts/addresses'
-import { MINIMAL_GAS_AMOUNT, MINIMAL_GAS_PRICE } from '../../utils/constants'
 import { useGlobalContext } from '../../contexts/global'
 import { useWalletConnectContext } from '../../contexts/walletconnect'
 import { ReactComponent as PaperPlaneDarkSVG } from '../../images/paper-plane-dark.svg'

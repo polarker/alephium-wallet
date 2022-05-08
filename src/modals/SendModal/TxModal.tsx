@@ -16,34 +16,24 @@ You should have received a copy of the GNU Lesser General Public License
 along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { APIError, convertAlphToSet, formatAmountForDisplay, getHumanReadableError } from '@alephium/sdk'
+import { APIError, getHumanReadableError } from '@alephium/sdk'
 import { SweepAddressTransaction } from '@alephium/sdk/api/alephium'
 import { AnimatePresence } from 'framer-motion'
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
-import styled, { useTheme } from 'styled-components'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { useTheme } from 'styled-components'
 
-import ExpandableSection from '../../components/ExpandableSection'
 import PasswordConfirmation from '../../components/PasswordConfirmation'
 import { Address, useAddressesContext } from '../../contexts/addresses'
 import { Client, TxModalType, useGlobalContext } from '../../contexts/global'
-import { useWalletConnectContext } from '../../contexts/walletconnect'
 import { ReactComponent as PaperPlaneDarkSVG } from '../../images/paper-plane-dark.svg'
 import { ReactComponent as PaperPlaneLightSVG } from '../../images/paper-plane-light.svg'
-import { MINIMAL_GAS_AMOUNT, MINIMAL_GAS_PRICE } from '../../utils/constants'
-import { TX_SMALLEST_ALPH_AMOUNT_STR } from '../../utils/constants'
-import { isAmountWithinRange } from '../../utils/transactions'
+import { NetworkType } from '../../utils/settings'
 import CenteredModal from '../CenteredModal'
 import ConsolidateUTXOsModal from '../ConsolidateUTXOsModal'
 import { Step, stepToTitle } from '.'
-import BuildTransferTx, { BuildTransferTxData, BuildTransferTxProps } from './BuildTransferTx'
-import SendModalCheckTransaction from './CheckTransaction'
-import CheckTransferTx from './CheckTransferTx'
-import SendModalTransactionForm from './TransactionForm'
-import BuildScriptTxModal from './BuildScriptTx'
-import TransferTxModal from './TransferTxModal'
 import DeployContractTxModal from './DeployContractTxModal'
 import ScriptTxModal from './ScriptTxModal'
-import { NetworkType } from '../../utils/settings'
+import TransferTxModal from './TransferTxModal'
 
 type ReactSet<T> = Dispatch<SetStateAction<T>>
 

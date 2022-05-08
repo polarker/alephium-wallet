@@ -17,19 +17,10 @@ along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { convertAlphToSet } from '@alephium/sdk'
-import AddressSelect from '../../components/Inputs/AddressSelect'
 
 import { Address } from '../../contexts/addresses'
 import { isAmountWithinRange } from '../../utils/transactions'
-import {
-  FromAddressSelect,
-  ModalContent,
-  PartialTxData,
-  SubmitOrCancel,
-  ToAddress,
-  useAddress,
-  useBuildTxCommon
-} from './utils'
+import { ModalContent, PartialTxData, SubmitOrCancel, ToAddress, useAddress, useBuildTxCommon } from './utils'
 
 export interface BuildTransferTxData {
   fromAddress: Address

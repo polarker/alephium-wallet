@@ -16,36 +16,14 @@ You should have received a copy of the GNU Lesser General Public License
 along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { APIError, convertAlphToSet, formatAmountForDisplay, getHumanReadableError } from '@alephium/sdk'
-import { SweepAddressTransaction } from '@alephium/sdk/api/alephium'
-import { AnimatePresence } from 'framer-motion'
-import { useEffect, useState } from 'react'
-import styled, { useTheme } from 'styled-components'
+import { convertAlphToSet } from '@alephium/sdk'
+import { convertHttpResponse } from 'alephium-web3'
 
-import ExpandableSection from '../../components/ExpandableSection'
-import PasswordConfirmation from '../../components/PasswordConfirmation'
-import { Address, useAddressesContext } from '../../contexts/addresses'
-import { Client, useGlobalContext } from '../../contexts/global'
-import { useWalletConnectContext } from '../../contexts/walletconnect'
-import { ReactComponent as PaperPlaneDarkSVG } from '../../images/paper-plane-dark.svg'
-import { ReactComponent as PaperPlaneLightSVG } from '../../images/paper-plane-light.svg'
-import { MINIMAL_GAS_AMOUNT, MINIMAL_GAS_PRICE } from '../../utils/constants'
-import { TX_SMALLEST_ALPH_AMOUNT_STR } from '../../utils/constants'
-import { isAmountWithinRange } from '../../utils/transactions'
-import CenteredModal from '../CenteredModal'
-import ConsolidateUTXOsModal from '../ConsolidateUTXOsModal'
-import { Step, stepToTitle } from '.'
-import BuildTransferTx, { BuildTransferTxData, BuildTransferTxProps } from './BuildTransferTx'
-import SendModalCheckTransaction from './CheckTransaction'
-import CheckTransferTx from './CheckTransferTx'
-import SendModalTransactionForm from './TransactionForm'
-import BuildScriptTxModal, { BuildScriptTxData, BuildScriptTxProps } from './BuildScriptTx'
-import { TxContext, TxModalFactory } from './TxModal'
-import BuildDeployContractTx, { BuildDeployContractTxData, BuildDeployContractTxProps } from './BuildDeployContractTx'
-import CheckDeployContractTx from './CheckDeployContractTx'
+import { Client } from '../../contexts/global'
+import { BuildScriptTxData, BuildScriptTxProps } from './BuildScriptTx'
 import BuildScriptTx from './BuildScriptTx'
 import CheckScriptTx from './CheckScriptTx'
-import { convertHttpResponse } from 'alephium-web3'
+import { TxContext, TxModalFactory } from './TxModal'
 
 export type ScriptTxModalProps = {
   initialTxData: BuildScriptTxProps['data']
