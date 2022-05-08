@@ -92,7 +92,7 @@ export function useTxModal<PT extends { fromAddress: Address }, T extends PT>(in
 
   const modalHeader = theme.name === 'dark' ? <PaperPlaneDarkSVG width="315px" /> : <PaperPlaneLightSVG width="315px" />
 
-  const _TxModal = ({
+  const TxModal = ({
     BuildTx,
     CheckTx,
     buildTransaction,
@@ -109,7 +109,9 @@ export function useTxModal<PT extends { fromAddress: Address }, T extends PT>(in
         setIsLoading(true)
         try {
           buildTransaction(client, data)
+          console.log(`========= ${isConsolidateUTXOsModalVisible} build done`)
           if (!isConsolidateUTXOsModalVisible) {
+            console.log('======= set info-check')
             setStep('info-check')
           }
         } catch (e) {
@@ -183,7 +185,6 @@ export function useTxModal<PT extends { fromAddress: Address }, T extends PT>(in
       </CenteredModal>
     )
   }
-  const [TxModal] = useState<typeof _TxModal>(() => _TxModal)
 
   return [
     TxModal,

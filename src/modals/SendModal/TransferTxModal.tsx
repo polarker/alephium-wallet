@@ -56,7 +56,6 @@ const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
     [sweepUnsignedTxs, setSweepUnsignedTxs],
     setFees
   ] = useTxModal<BuildTransferTxProps['data'], BuildTransferTxData>(initialTxData, onClose)
-  console.log(JSON.stringify(TxModal))
 
   const { setAddress } = useAddressesContext()
   const [unsignedTxId, setUnsignedTxId] = useState('')
@@ -74,6 +73,7 @@ const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
       setSweepUnsignedTxs(unsignedTxs)
       setFees(fees)
     } else {
+      console.log(`======= build`)
       const { data } = await client.clique.transactionCreate(
         fromAddress.hash,
         fromAddress.publicKey,
@@ -83,6 +83,7 @@ const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
         gasAmount ? parseInt(gasAmount) : undefined,
         gasPrice ? convertAlphToSet(gasPrice).toString() : undefined
       )
+      console.log(`======= data ${JSON.stringify(data)}`)
       setUnsignedTransaction(data.unsignedTx)
       setUnsignedTxId(data.txId)
       setFees(BigInt(data.gasAmount) * BigInt(data.gasPrice))
