@@ -17,13 +17,13 @@ along with the library. If not, see <http://www.gnu.org/licenses/>.
 */
 
 import { convertAlphToSet } from '@alephium/sdk'
+import { SignTransferTxResult } from 'alephium-web3'
 
 import { Client } from '../../contexts/global'
+import { useWalletConnectContext } from '../../contexts/walletconnect'
 import BuildTransferTx, { BuildTransferTxData, BuildTransferTxProps } from './BuildTransferTx'
 import CheckTransferTx from './CheckTransferTx'
 import { TxContext, TxModalFactory } from './TxModal'
-import { useWalletConnectContext } from '../../contexts/walletconnect'
-import { SignTransferTxResult } from 'alephium-web3'
 
 export type TransferTxModalProps = {
   initialTxData: BuildTransferTxProps['data']
