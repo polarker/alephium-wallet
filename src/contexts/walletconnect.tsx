@@ -106,7 +106,7 @@ export const WalletConnectContextProvider: FC = ({ children }) => {
             fromAddress: extractAddress(p.signerAddress),
             toAddress: p.destinations[0].address,
             alphAmount: p.destinations[0].alphAmount,
-            gasAmount: p.gas,
+            gasAmount: p.gasAmount,
             gasPrice: p.gasPrice
           }
           setDappTransactionData(['transfer', txData])
@@ -118,7 +118,7 @@ export const WalletConnectContextProvider: FC = ({ children }) => {
             initialFields: p.initialFields,
             alphAmount: p.alphAmount,
             issueTokenAmount: p.issueTokenAmount,
-            gasAmount: p.gas,
+            gasAmount: p.gasAmount,
             gasPrice: p.gasPrice
           }
           setDappTransactionData(['deploy-contract', txData])
@@ -128,7 +128,7 @@ export const WalletConnectContextProvider: FC = ({ children }) => {
             fromAddress: extractAddress(p.signerAddress),
             bytecode: p.bytecode,
             alphAmount: p.alphAmount,
-            gasAmount: p.gas,
+            gasAmount: p.gasAmount,
             gasPrice: p.gasPrice
           }
           setDappTransactionData(['script', txData])

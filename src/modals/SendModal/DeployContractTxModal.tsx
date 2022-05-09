@@ -31,7 +31,7 @@ export type DeployContractTxModalProps = {
 }
 
 const DeployContractTxModal = ({ initialTxData, onClose }: DeployContractTxModalProps) => {
-  const [contractAddress, setContractAddress] = useState<string | undefined>()
+  const [contractAddress, setContractAddress] = useState<string>('')
 
   const buildTransaction = async (client: Client, data: BuildDeployContractTxData, context: TxContext) => {
     const params = {
@@ -45,13 +45,13 @@ const DeployContractTxModal = ({ initialTxData, onClose }: DeployContractTxModal
     }
     console.log(`========= params ${JSON.stringify(params)}`)
     const response = convertHttpResponse(
-      await client.clique.contracts.postContractsUnsignedTxBuildContract({
+      await client.web3.contracts.postContractsUnsignedTxBuildContract({
         fromPublicKey: data.fromAddress.publicKey,
         bytecode: data.bytecode,
         initialFields: data.initialFields,
         alphAmount: data.alphAmount,
         issueTokenAmount: data.issueTokenAmount,
-        gas: data.gasAmount,
+        gasAmount: data.gasAmount,
         gasPrice: data.gasPrice ? convertAlphToSet(data.gasPrice).toString() : undefined
       })
     )
@@ -59,7 +59,8 @@ const DeployContractTxModal = ({ initialTxData, onClose }: DeployContractTxModal
     setContractAddress(response.contractAddress)
     context.setUnsignedTransaction(response.unsignedTx)
     context.setUnsignedTxId(response.txId)
-    context.setFees(BigInt(1))
+    console.log(`========== gas ${BigInt(response.gasAmount) * BigInt(response.gasPrice)}`)
+    context.setFees(BigInt(response.gasAmount) * BigInt(response.gasPrice))
   }
 
   const handleSend = async (client: Client, txData: BuildDeployContractTxData, context: TxContext) => {
@@ -73,12 +74,12 @@ const DeployContractTxModal = ({ initialTxData, onClose }: DeployContractTxModal
   }
 
   const getWalletConnectResult = (context: TxContext, signature: string): SignContractCreationTxResult => {
-    const contractId = binToHex(contractIdFromAddress(contractAddress!))
+    const contractId = binToHex(contractIdFromAddress(contractAddress))
     return {
       unsignedTx: context.unsignedTransaction,
       txId: context.unsignedTxId,
       signature: signature,
-      contractAddress: contractAddress!,
+      contractAddress: contractAddress,
       contractId: contractId
     }
   }

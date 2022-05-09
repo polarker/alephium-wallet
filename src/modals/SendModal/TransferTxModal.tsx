@@ -32,7 +32,6 @@ export type TransferTxModalProps = {
 
 const TransferTxModal = ({ initialTxData, onClose }: TransferTxModalProps) => {
   console.log('============ refresh transfer')
-  const { requestEvent, walletConnect } = useWalletConnectContext()
 
   const buildTransaction = async (client: Client, transactionData: BuildTransferTxData, context: TxContext) => {
     const { fromAddress, toAddress, alphAmount, gasAmount, gasPrice } = transactionData

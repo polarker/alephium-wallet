@@ -33,18 +33,19 @@ export type ScriptTxModalProps = {
 const ScriptTxModal = ({ initialTxData, onClose }: ScriptTxModalProps) => {
   const buildTransaction = async (client: Client, txData: BuildScriptTxData, ctx: TxContext) => {
     const response = convertHttpResponse(
-      await client.clique.contracts.postContractsUnsignedTxBuildScript({
+      await client.web3.contracts.postContractsUnsignedTxBuildScript({
         fromPublicKey: txData.fromAddress.publicKey,
         bytecode: txData.bytecode,
         alphAmount: txData.alphAmount,
         tokens: undefined,
-        gas: txData.gasAmount,
+        gasAmount: txData.gasAmount,
         gasPrice: txData.gasPrice ? convertAlphToSet(txData.gasPrice).toString() : undefined
       })
     )
     ctx.setUnsignedTransaction(response.unsignedTx)
     ctx.setUnsignedTxId(response.txId)
-    ctx.setFees(BigInt(1))
+    console.log(`========== gas ${BigInt(response.gasAmount) * BigInt(response.gasPrice)}`)
+    ctx.setFees(BigInt(response.gasAmount) * BigInt(response.gasPrice))
   }
 
   const handleSend = async (client: Client, txData: BuildScriptTxData, ctx: TxContext) => {
