@@ -262,7 +262,11 @@ export const TxModal = ({ txModalType, onClose }: TxModalProps) => {
     txData = dappTransactionData[1]
   }
 
-  console.log('========== refresh TxModal')
+  console.log(
+    `========== refresh TxModal: ${JSON.stringify(dappTransactionData, (key, value) =>
+      typeof value === 'bigint' ? value.toString() : value
+    )}`
+  )
 
   return (
     <>

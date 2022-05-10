@@ -25,7 +25,7 @@ import { useAddressesContext } from '../contexts/addresses'
 import { BuildDeployContractTxData } from '../modals/SendModal/BuildDeployContractTx'
 import { BuildScriptTxData } from '../modals/SendModal/BuildScriptTx'
 import { BuildTransferTxData } from '../modals/SendModal/BuildTransferTx'
-import { useGlobalContext } from './global'
+import { TxModalType, useGlobalContext } from './global'
 
 export interface ContextType {
   isWalletConnectModalOpen: boolean
@@ -59,6 +59,11 @@ export const WalletConnectContextProvider: FC = ({ children }) => {
   const [dappTransactionData, setDappTransactionData] = useState<ContextType['dappTransactionData']>()
   const [requestEvent, setRequestEvent] = useState<SessionTypes.RequestEvent>()
 
+  const setTxData = (type: TxModalType, data: typeof dappTransactionData[1]) => {
+    setDappTransactionData([type, data])
+    setTxModalType(type)
+  }
+
   useEffect(() => {
     if (walletConnect === undefined) {
       WalletConnectClient.init({
@@ -84,6 +89,14 @@ export const WalletConnectContextProvider: FC = ({ children }) => {
       return
     }
 
+    const extractAddress = (signerAddress: string) => {
+      const address = addresses.find((a) => a.hash === signerAddress)
+      if (typeof address === 'undefined') {
+        throw new Error(`Unknown signer address: ${signerAddress}`)
+      }
+      return address
+    }
+
     const onSessionRequest = async (event: SessionTypes.RequestEvent) => {
       const {
         topic,
@@ -91,15 +104,8 @@ export const WalletConnectContextProvider: FC = ({ children }) => {
       } = event
       setRequestEvent(event)
 
-      const extractAddress = (signerAddress: string) => {
-        const address = addresses.find((a) => a.hash === params.fromAddress)
-        if (typeof address === 'undefined') {
-          throw new Error(`Unknown signer address: ${signerAddress}`)
-        }
-        return address
-      }
-
       try {
+        console.log(`============= ${method} ${JSON.stringify(params)}`)
         if (method === 'alph_signTransferTx') {
           const p = params as SignTransferTxParams
           const txData: BuildTransferTxData = {
@@ -109,7 +115,7 @@ export const WalletConnectContextProvider: FC = ({ children }) => {
             gasAmount: p.gasAmount,
             gasPrice: p.gasPrice
           }
-          setDappTransactionData(['transfer', txData])
+          setTxData('transfer', txData)
         } else if (method === 'alph_signContractCreationTx') {
           const p = params as SignContractCreationTxParams
           const txData: BuildDeployContractTxData = {
@@ -121,7 +127,12 @@ export const WalletConnectContextProvider: FC = ({ children }) => {
             gasAmount: p.gasAmount,
             gasPrice: p.gasPrice
           }
-          setDappTransactionData(['deploy-contract', txData])
+          console.log(
+            `========== txData : ${JSON.stringify(dappTransactionData, (key, value) =>
+              typeof value === 'bigint' ? value.toString() : value
+            )}`
+          )
+          setTxData('deploy-contract', txData)
         } else if (method === 'alph_signScriptTx') {
           const p = params as SignScriptTxParams
           const txData: BuildScriptTxData = {
@@ -131,7 +142,7 @@ export const WalletConnectContextProvider: FC = ({ children }) => {
             gasAmount: p.gasAmount,
             gasPrice: p.gasPrice
           }
-          setDappTransactionData(['script', txData])
+          setTxData('script', txData)
         } else {
           throw new Error(`Unsupported walletconnect request: ${method}`)
         }

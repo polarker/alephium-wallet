@@ -59,6 +59,7 @@ export interface GlobalContextProps {
   setSnackbarMessage: (message: SnackbarMessage | undefined) => void
   isClientLoading: boolean
   currentNetwork: NetworkType | 'custom'
+  currentNetworkId: number
   isOffline: boolean
   newLatestVersion: string
   txModalType: TxModalType | false
@@ -81,6 +82,7 @@ export const initialGlobalContext: GlobalContextProps = {
   setSnackbarMessage: () => null,
   isClientLoading: false,
   currentNetwork: 'mainnet',
+  currentNetworkId: 0,
   isOffline: false,
   newLatestVersion: '',
   txModalType: false,
